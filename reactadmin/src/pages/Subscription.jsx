@@ -3,18 +3,36 @@ import api from '../services/api';
 
 const Subscription = () => {
     const [items, setItems] = useState([]);
+    const [customers, setCustomers] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [newItem, setNewItem] = useState({
         customer: '',
         product: '',
-        quantity: ''
+        quantity: '',
+        duration: '',
+        delivery_slot: '',
+        address: '',
+        status: 'active'
     });
 
     const loadItems = async () => {
+        setLoading(true);
+        setError(null);
         try {
-            const response = await api.get('/subscription/subscription/');
-            setItems(response.data);
+            const [sRes, cRes, pRes] = await Promise.all([
+                api.get('/subscription/subscription/'),
+                api.get('/customer/customer/'),
+                api.get('/product/product/'),
+            ]);
+            setItems(sRes.data);
+            setCustomers(cRes.data);
+            setProducts(pRes.data);
         } catch (err) {
-            console.error('Error loading subscriptions:', err);
+            setError('Failed to load subscriptions, customers, or products');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -31,7 +49,7 @@ const Subscription = () => {
         e.preventDefault();
         try {
             await api.post('/subscription/subscription/', newItem);
-            setNewItem({ customer: '', product: '', quantity: '' });
+            setNewItem({ customer: '', product: '', quantity: '', duration: '', delivery_slot: '', address: '', status: 'active' });
             loadItems();
         } catch (err) {
             console.error('Error adding subscription:', err);
@@ -45,6 +63,17 @@ const Subscription = () => {
         } catch (err) {
             console.error('Error deleting subscription:', err);
         }
+    };
+
+    const toggleStatus = async (row) => {
+        const next = row.status === 'paused' ? 'active' : 'paused';
+        await api.patch(`/subscription/subscription/${row.id}/`, { status: next });
+        loadItems();
+    };
+
+    const nameById = (list, id) => {
+        const f = list.find(x => x.id === id);
+        return f ? f.name : id;
     };
 
     return (
@@ -87,18 +116,73 @@ const Subscription = () => {
                                 required
                             />
                         </div>
+                        <div className="col-md-3">
+                            <label className="form-label">DURATION (months)</label>
+                            <input
+                                type="number"
+                                className="form-control"
+                                name="duration"
+                                value={newItem.duration}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="col-md-3">
+                            <label className="form-label">DELIVERY SLOT</label>
+                            <select
+                                className="form-select"
+                                name="delivery_slot"
+                                value={newItem.delivery_slot}
+                                onChange={handleInputChange}
+                                required
+                            >
+                                <option value="">Select slot</option>
+                                <option value="morning">Morning</option>
+                                <option value="noon">Noon</option>
+                                <option value="evening">Evening</option>
+                            </select>
+                        </div>
+                        <div className="col-md-6">
+                            <label className="form-label">ADDRESS</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                name="address"
+                                value={newItem.address}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="col-md-3">
+                            <label className="form-label">STATUS</label>
+                            <select
+                                className="form-select"
+                                name="status"
+                                value={newItem.status}
+                                onChange={handleInputChange}
+                            >
+                                <option value="active">Active</option>
+                                <option value="paused">Paused</option>
+                            </select>
+                        </div>
                         <div className="col-12">
                             <button type="submit" className="btn btn-success">Add Subscription</button>
                         </div>
                     </form>
                 </div>
             </div>
+            {error && <div className="alert alert-danger">{error}</div>}
+            {loading ? <div>Loading...</div> : (
             <table className="table table-striped">
                 <thead>
                     <tr>
-                        <th>CUSTOMER ID</th>
-                        <th>PRODUCT ID</th>
+                        <th>CUSTOMER</th>
+                        <th>PRODUCT</th>
                         <th>QUANTITY</th>
+                        <th>DURATION</th>
+                        <th>SLOT</th>
+                        <th>ADDRESS</th>
+                        <th>STATUS</th>
                         <th>START DATE</th>
                         <th>Actions</th>
                     </tr>
@@ -106,17 +190,23 @@ const Subscription = () => {
                 <tbody>
                     {items.map(item => (
                         <tr key={item.id}>
-                            <td>{item.customer}</td>
-                            <td>{item.product}</td>
+                            <td>{nameById(customers, item.customer)}</td>
+                            <td>{nameById(products, item.product)}</td>
                             <td>{item.quantity}</td>
+                            <td>{item.duration}</td>
+                            <td>{item.delivery_slot}</td>
+                            <td>{item.address}</td>
+                            <td>{item.status}</td>
                             <td>{new Date(item.start_date).toLocaleDateString()}</td>
                             <td>
+                                <button className="btn btn-secondary btn-sm me-2" onClick={() => toggleStatus(item)}>{item.status === 'paused' ? 'Resume' : 'Pause'}</button>
                                 <button className="btn btn-danger btn-sm" onClick={() => deleteItem(item.id)}>Delete</button>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+            )}
         </div>
     );
 };

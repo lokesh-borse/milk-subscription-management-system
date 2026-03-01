@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Product
 from .serializers import ProductSerializer
 from staff.auth import StaffTokenAuthentication
@@ -10,8 +10,16 @@ class ProductViewSet(APIView):
     authentication_classes = [StaffTokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
     def get(self, request, format=None):
         products = Product.objects.all()
+        category_id = request.query_params.get('category')
+        if category_id:
+            products = products.filter(category_id=category_id)
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
 

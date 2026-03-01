@@ -3,6 +3,9 @@ import api from '../services/api';
 
 const Product = () => {
     const [items, setItems] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [newItem, setNewItem] = useState({
         name: '',
         price: '',
@@ -11,11 +14,19 @@ const Product = () => {
     });
 
     const loadItems = async () => {
+        setLoading(true);
+        setError(null);
         try {
-            const response = await api.get('/product/product/');
-            setItems(response.data);
+            const [pRes, cRes] = await Promise.all([
+                api.get('/product/product/'),
+                api.get('/category/category/'),
+            ]);
+            setItems(pRes.data);
+            setCategories(cRes.data);
         } catch (err) {
-            console.error('Error loading products:', err);
+            setError('Failed to load products or categories');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -79,15 +90,19 @@ const Product = () => {
                             />
                         </div>
                         <div className="col-md-3">
-                            <label className="form-label">CATEGORY ID</label>
-                            <input
-                                type="number"
-                                className="form-control"
+                            <label className="form-label">CATEGORY</label>
+                            <select
+                                className="form-select"
                                 name="category"
                                 value={newItem.category}
                                 onChange={handleInputChange}
                                 required
-                            />
+                            >
+                                <option value="">Select category</option>
+                                {categories.map(c => (
+                                    <option key={c.id} value={c.id}>{c.name}</option>
+                                ))}
+                            </select>
                         </div>
                         <div className="col-md-3">
                             <label className="form-label">DESCRIPTION</label>
@@ -105,6 +120,8 @@ const Product = () => {
                     </form>
                 </div>
             </div>
+            {error && <div className="alert alert-danger">{error}</div>}
+            {loading ? <div>Loading...</div> : (
             <table className="table table-striped">
                 <thead>
                     <tr>
@@ -129,6 +146,7 @@ const Product = () => {
                     ))}
                 </tbody>
             </table>
+            )}
         </div>
     );
 };

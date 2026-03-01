@@ -9,6 +9,10 @@ class Subscription(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     start_date = models.DateField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+    duration = models.PositiveIntegerField(default=1)
+    delivery_slot = models.CharField(max_length=50, blank=True)
+    address = models.CharField(max_length=255, blank=True)
+    status = models.CharField(max_length=20, default="active")
 
     def __str__(self):
         return f"{self.customer.name} -> {self.product.name}"

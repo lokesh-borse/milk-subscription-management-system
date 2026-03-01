@@ -10,6 +10,12 @@ api.interceptors.request.use((config) => {
     const token = localStorage.getItem('staffToken');
     if (token) {
         config.headers.Authorization = `Token ${token}`;
+    } else {
+        // Debug: missing token on protected endpoints will cause 401/403
+        if (config.method !== 'get') {
+            // eslint-disable-next-line no-console
+            console.debug('[admin api] no staffToken; request may be rejected', config.url);
+        }
     }
     return config;
 });
@@ -17,7 +23,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response && error.response.status === 401) {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
             localStorage.removeItem('staffToken');
             localStorage.removeItem('staffUser');
             window.location.href = '#/login';
