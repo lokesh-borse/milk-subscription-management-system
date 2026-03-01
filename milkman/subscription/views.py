@@ -10,11 +10,36 @@ from staff.models import Staff
 from customer.models import Customer
 
 class SubscriptionViewSet(APIView):
-    authentication_classes = [StaffTokenAuthentication, CustomerTokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    # We'll perform auth checks manually so that customer tokens and staff tokens
+    # don't short-circuit each other (custom authenticators raise on bad signature).
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def _authenticate_customer_or_staff(self, request):
+        # try customer first, then staff
+        from rest_framework import exceptions
+        cust_auth = CustomerTokenAuthentication()
+        staff_auth = StaffTokenAuthentication()
+        try:
+            rv = cust_auth.authenticate(request)
+            if rv is not None:
+                return rv  # (user, payload)
+        except exceptions.AuthenticationFailed:
+            # ignore and try staff
+            pass
+        try:
+            rv = staff_auth.authenticate(request)
+            if rv is not None:
+                return rv
+        except exceptions.AuthenticationFailed:
+            # no valid token
+            return None
+        return None
 
     def get(self, request, format=None):
-        user = getattr(request, "user", None)
+        # attach user if we can authenticate
+        auth_result = self._authenticate_customer_or_staff(request)
+        user = auth_result[0] if auth_result else getattr(request, "user", None)
         subscriptions = Subscription.objects.all()
         if isinstance(user, Customer):
             customer_id = user.pk
@@ -27,7 +52,8 @@ class SubscriptionViewSet(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        user = getattr(request, "user", None)
+        auth_result = self._authenticate_customer_or_staff(request)
+        user = auth_result[0] if auth_result else None
         data = request.data.copy()
         if isinstance(user, Customer):
             data['customer'] = user.pk
@@ -38,6 +64,11 @@ class SubscriptionViewSet(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk=None, format=None):
+        # require authentication for patch
+        auth_result = self._authenticate_customer_or_staff(request)
+        if not auth_result:
+            return Response({'detail': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+        user = auth_result[0]
         sub_id = pk or request.parser_context.get('kwargs', {}).get('pk')
         if not sub_id:
             return Response({"detail": "Missing id"}, status=status.HTTP_400_BAD_REQUEST)

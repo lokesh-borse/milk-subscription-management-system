@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 const Confirm = () => {
   const [draft, setDraft] = useState({});
   const [product, setProduct] = useState(null);
+  const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -20,6 +21,7 @@ const Confirm = () => {
 
   const confirm = async () => {
     setSubmitting(true);
+    setError(null);
     try {
       const payload = {
         customer: user.id,
@@ -30,11 +32,13 @@ const Confirm = () => {
         address: draft.address || '',
         status: 'active',
       };
-      await api.post('/subscription/subscription/', payload);
+      const res = await api.post('/subscription/subscription/', payload);
+      if (res.status !== 201 && res.status !== 200) throw new Error('Subscription failed');
       sessionStorage.removeItem('subDraft');
       navigate('/subscribe/success');
     } catch {
-      // no-op for now
+      // show error to the user if available
+      setError('Failed to create subscription. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -44,9 +48,16 @@ const Confirm = () => {
 
   return (
     <div className="card card-body">
+      {error && <div className="card card-body" style={{ marginBottom: 12, borderColor: '#f8d7da', background: '#fff0f0' }}>{error}</div>}
       <div className="product-name" style={{ marginBottom: 8 }}>Confirm Subscription</div>
       <div className="grid cols-3" style={{ marginBottom: 12 }}>
-        <div className="card card-body"><div className="muted">Product</div><strong>{product?.name || draft.product}</strong></div>
+        <div className="card card-body">
+          <div className="muted">Product</div>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <img src={product?.image || `https://source.unsplash.com/128x128/?${encodeURIComponent(product?.name||'milk')}`} alt={product?.name} style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8 }} />
+            <strong>{product?.name || draft.product}</strong>
+          </div>
+        </div>
         <div className="card card-body"><div className="muted">Quantity</div><strong>{draft.quantity}</strong></div>
         <div className="card card-body"><div className="muted">Duration</div><strong>{draft.duration} months</strong></div>
         <div className="card card-body"><div className="muted">Delivery Slot</div><strong>{draft.delivery_slot}</strong></div>

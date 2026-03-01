@@ -44,14 +44,25 @@ const Products = () => {
       ) : products.length === 0 ? (
         <div className="card card-body">No products available.</div>
       ) : (
-        <div className="grid cols-4">
-          {products.map(p => (
-            <div className="product-card" key={p.id}>
-              <div className="product-name">{p.name}</div>
-              <p className="product-desc">{p.description}</p>
-              <div className="actions">
-                <Link className="btn outline" to={`/product/${p.id}`}>Details</Link>
-                <Link className="btn" to={isAuthenticated ? '/subscribe/category' : '/login'}>Subscribe</Link>
+        <div className="grid cols-4 gap-sm">
+          {products.map((p, idx) => (
+            <div className="product-card card" key={p.id} style={{ padding: 16 }}>
+              <div className="product-img-wrapper">
+                <img
+                  alt={p.name}
+                  className="product-img"
+                  src={
+                    p.image || p.image_url || `https://source.unsplash.com/600x600/?${encodeURIComponent(p.name || (p.category && p.category.name) || 'food')}&sig=${p.id || idx}`
+                  }
+                />
+              </div>
+              <div className="product-info">
+                <div className="product-name">{p.name}</div>
+                <p className="product-meta">{p.description}</p>
+                <div style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'center' }}>
+                  <Link className="btn outline btn-sm" to={`/product/${p.id}`}>Details</Link>
+                  <Link className="btn btn-sm" to={isAuthenticated ? '/subscribe/category' : '/login'}>Subscribe</Link>
+                </div>
               </div>
             </div>
           ))}
