@@ -18,21 +18,17 @@ const Layout = ({ children }) => {
 
   return (
     <div className="layout-wrapper">
-      {/* Announcement Bar */}
       <div className="announcement-bar">
         <span>Complimentary morning delivery on all subscription plans.</span>
       </div>
 
-      {/* Professional Navbar */}
       <header className={`nav ${scrolled ? 'scrolled' : ''}`}>
         <div className="nav-inner">
-          {/* Left: Navigation Links */}
           <nav className="nav-group left">
             <Link className="nav-link" to="/categories">Collections</Link>
             <Link className="nav-link" to="/products">Our Dairy</Link>
           </nav>
 
-          {/* Center: Brand Logo */}
           <div className="nav-group center">
             <Link className="brand" to="/">
               <img src={logo} alt="Milkman" className="brand-logo" />
@@ -40,9 +36,7 @@ const Layout = ({ children }) => {
             </Link>
           </div>
 
-          {/* Right: User Actions */}
           <nav className="nav-group right">
-            {/* Cart Icon always visible */}
             <Cart />
             {!isAuthenticated ? (
               <>
@@ -60,13 +54,10 @@ const Layout = ({ children }) => {
           </nav>
         </div>
       </header>
-      
-      <main className="main-content">
-        {children}
-      </main>
+
+      <main className="main-content">{children}</main>
       <Toast />
-      
-      {/* High-End Footer */}
+
       <footer className="footer">
         <div className="container footer-grid">
           <div>
@@ -77,7 +68,7 @@ const Layout = ({ children }) => {
             <h4 className="footer-title">Explore</h4>
             <Link className="footer-link" to="/products">All Products</Link>
             <Link className="footer-link" to="/categories">Categories</Link>
-            <Link className="footer-link" to="/plans">Subscription Plans</Link>
+            <Link className="footer-link" to="/subscribe/category">Subscription Plans</Link>
           </div>
           <div>
             <h4 className="footer-title">Support</h4>
@@ -87,7 +78,7 @@ const Layout = ({ children }) => {
           </div>
         </div>
         <div className="footer-bottom container">
-          © {new Date().getFullYear()} Milkman Artisanal Dairy. All rights reserved.
+          &copy; {new Date().getFullYear()} Milkman Artisanal Dairy. All rights reserved.
         </div>
       </footer>
     </div>

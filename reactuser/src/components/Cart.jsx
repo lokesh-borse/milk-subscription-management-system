@@ -62,9 +62,9 @@ const Cart = () => {
             items.map(it => (
               <div className="cart-item" key={it.id}>
                 <img
-                  src={it.image || `https://source.unsplash.com/80x80/?${encodeURIComponent(it.name || 'milk')}`}
+                  src={it.image || `https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=200&sig=${it.id}`}
                   alt={it.name}
-                  onError={(e) => { e.target.src = `https://source.unsplash.com/80x80/?milk&sig=${it.id || Math.random()}`; }}
+                  onError={(e) => { e.target.src = `https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=200`; }}
                 />
                 <div className="cart-item-info">
                   <div className="product-name">{it.name}</div>
