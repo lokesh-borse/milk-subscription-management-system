@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Cart from './Cart.jsx';
+import Toast from './Toast.jsx';
+import logo from '../assets/logo.svg';
 
 const Layout = ({ children }) => {
   const { isAuthenticated, logout } = useAuth();
@@ -31,11 +34,16 @@ const Layout = ({ children }) => {
 
           {/* Center: Brand Logo */}
           <div className="nav-group center">
-            <Link className="brand" to="/">Milkman.</Link>
+            <Link className="brand" to="/">
+              <img src={logo} alt="Milkman" className="brand-logo" />
+              <span style={{ marginLeft: 8 }}>Milkman.</span>
+            </Link>
           </div>
 
           {/* Right: User Actions */}
           <nav className="nav-group right">
+            {/* Cart Icon always visible */}
+            <Cart />
             {!isAuthenticated ? (
               <>
                 <Link className="nav-link" to="/login">Sign In</Link>
@@ -56,6 +64,7 @@ const Layout = ({ children }) => {
       <main className="main-content">
         {children}
       </main>
+      <Toast />
       
       {/* High-End Footer */}
       <footer className="footer">

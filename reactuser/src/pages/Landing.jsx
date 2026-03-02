@@ -17,11 +17,15 @@ const Landing = () => {
     <>
       {/* Massive Immersive Hero */}
       <section className="hero-fullscreen">
-        <img 
-          src="https://images.unsplash.com/photo-1528750997573-59b89d56f4f7?q=80&w=2500&auto=format&fit=crop" 
-          alt="Fresh Milk" 
-          className="hero-bg"
-        />
+        <picture>
+          <source type="image/webp" srcSet="https://images.unsplash.com/photo-1528750997573-59b89d56f4f7?q=80&w=2500&auto=format&fit=crop&fm=webp" />
+          <img
+            src="https://images.unsplash.com/photo-1528750997573-59b89d56f4f7?q=80&w=2500&auto=format&fit=crop"
+            alt="Fresh Milk"
+            className="hero-bg"
+            loading="lazy"
+          />
+        </picture>
         <div className="hero-overlay"></div>
         <div className="hero-content">
           <h1 className="fade-up">Farm to Fridge, Flawlessly.</h1>

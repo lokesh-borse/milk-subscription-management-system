@@ -31,11 +31,13 @@ const ProductDetail = () => {
       <Link to="/products" className="link" style={{ display: 'inline-block', marginBottom: '32px' }}>&larr; Back to Selection</Link>
       
       <div className="grid cols-2" style={{ alignItems: 'center', gap: '64px' }}>
-        <div className="card" style={{ padding: 0, overflow: 'hidden', border: 'none', borderRadius: '24px' }}>
-          <img 
-            alt={product.name} 
-            src="https://images.unsplash.com/photo-1563636619-e9143da7973b?q=80&w=1000&auto=format&fit=crop" 
-            style={{ width: '100%', height: '600px', objectFit: 'cover', display: 'block' }} 
+          <div className="card" style={{ padding: 0, overflow: 'hidden', border: 'none', borderRadius: '24px' }}>
+          <img
+            alt={product.name}
+            loading="lazy"
+            src={product.image || product.image_url || `https://source.unsplash.com/1000x600/?${encodeURIComponent(product.name || 'milk')}`}
+            onError={(e) => { e.target.src = `https://source.unsplash.com/1000x600/?milk&sig=${product.id || Math.random()}`; }}
+            style={{ width: '100%', height: '600px', objectFit: 'cover', display: 'block' }}
           />
         </div>
         
@@ -57,6 +59,22 @@ const ProductDetail = () => {
             <Link to={isAuthenticated ? '/subscribe/category' : '/login'} className="btn" style={{ padding: '18px 40px', fontSize: '16px' }}>
               Subscribe to Delivery
             </Link>
+            <button
+              className="btn btn-outline-light"
+              style={{ padding: '16px 28px' }}
+              onClick={() => {
+                try {
+                  const raw = localStorage.getItem('cart');
+                  const cart = raw ? JSON.parse(raw) : [];
+                  const existing = cart.find(i => i.id === product.id);
+                  if (existing) existing.qty = (existing.qty || 1) + 1;
+                  else cart.push({ id: product.id, name: product.name, price: Number(product.price) || 0, image: product.image || null, qty: 1 });
+                  localStorage.setItem('cart', JSON.stringify(cart));
+                  window.dispatchEvent(new Event('storage'));
+                  window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', message: `Added ${product.name} to cart` } }));
+                } catch (e) { }
+              }}
+            >Add to cart</button>
           </div>
         </div>
       </div>
