@@ -103,6 +103,37 @@ class Command(BaseCommand):
             ],
         }
 
+        # Keep one unique, realistic image per product name, including legacy rows.
+        product_image_overrides = {
+            "Cow-Milk": pexels_url(28424335, 900, 5001),
+            "Paneer": pexels_url(10585061, 900, 5002),
+            "Yoghurt": pexels_url(4006347, 900, 5003),
+            "Cow Milk 1L": pexels_url(1251175, 900, 5101),
+            "Buffalo Milk 1L": pexels_url(416978, 900, 5102),
+            "A2 Milk 1L": pexels_url(248412, 900, 5103),
+            "Fresh Curd 500g": pexels_url(5946688, 900, 5201),
+            "Greek Yogurt 400g": pexels_url(4669024, 900, 5202),
+            "Probiotic Yogurt 400g": pexels_url(704569, 900, 5203),
+            "Fresh Paneer 200g": pexels_url(4198019, 900, 5301),
+            "Cheddar Cheese 200g": pexels_url(821365, 900, 5302),
+            "Mozzarella 200g": pexels_url(4109948, 900, 5303),
+            "Salted Butter 100g": pexels_url(5313343, 900, 5401),
+            "Cow Ghee 500ml": pexels_url(7262897, 900, 5402),
+            "Bilona Ghee 500ml": pexels_url(6660185, 900, 5403),
+            "Plain Buttermilk 500ml": pexels_url(5946639, 900, 5501),
+            "Masala Buttermilk 500ml": pexels_url(6544370, 900, 5502),
+            "Sweet Lassi 300ml": pexels_url(337909, 900, 5503),
+            "Chocolate Milk 250ml": pexels_url(5946633, 900, 5601),
+            "Badam Milk 250ml": pexels_url(5946082, 900, 5602),
+            "Strawberry Shake 300ml": pexels_url(5946973, 900, 5603),
+            "Farm Eggs (6 pcs)": pexels_url(162712, 900, 5701),
+            "Brown Eggs (6 pcs)": pexels_url(6941036, 900, 5702),
+            "Omega-3 Eggs (6 pcs)": pexels_url(1759279, 900, 5703),
+            "Milk Bread 400g": pexels_url(1775043, 900, 5801),
+            "Multigrain Bread 400g": pexels_url(2434, 900, 5802),
+            "Rusk 300g": pexels_url(2067396, 900, 5803),
+        }
+
         created_categories = 0
         updated_categories = 0
         created_products = 0
@@ -150,6 +181,13 @@ class Command(BaseCommand):
             p.image = pexels_url(248412, 900, 4000 + p.id)
             p.save(update_fields=["image"])
             backfilled_products += 1
+
+        # Enforce curated unique product images by name.
+        for p in Product.objects.all():
+            override_image = product_image_overrides.get(p.name)
+            if override_image and p.image != override_image:
+                p.image = override_image
+                p.save(update_fields=["image"])
 
         self.stdout.write(
             self.style.SUCCESS(

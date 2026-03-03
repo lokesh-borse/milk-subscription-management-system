@@ -3,6 +3,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import exceptions
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.core.files.storage import default_storage
+from django.utils import timezone
+from pathlib import Path
 from .models import Category
 from .serializers import CategorySerializer
 from staff.auth import StaffTokenAuthentication
@@ -52,3 +56,33 @@ class CategoryViewSet(APIView):
         category = Category.objects.get(pk=pk)
         category.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CategoryImageUploadView(APIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, format=None):
+        auth = StaffTokenAuthentication()
+        try:
+            rv = auth.authenticate(request)
+        except exceptions.AuthenticationFailed:
+            raise exceptions.NotAuthenticated('Staff credentials required')
+        if rv is None:
+            raise exceptions.NotAuthenticated('Staff credentials required')
+
+        file_obj = request.FILES.get('image')
+        if not file_obj:
+            return Response({"detail": "No image file provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        allowed_exts = {'.jpg', '.jpeg', '.png', '.webp'}
+        ext = Path(file_obj.name).suffix.lower()
+        if ext not in allowed_exts:
+            return Response({"detail": "Only .jpg, .jpeg, .png, .webp files are allowed."}, status=status.HTTP_400_BAD_REQUEST)
+
+        ts = timezone.now().strftime('%Y%m%d%H%M%S%f')
+        safe_name = f"categories/{ts}{ext}"
+        saved_path = default_storage.save(safe_name, file_obj)
+        url = request.build_absolute_uri(default_storage.url(saved_path))
+        return Response({"image": url}, status=status.HTTP_201_CREATED)

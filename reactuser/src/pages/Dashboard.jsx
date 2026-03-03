@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ProductCard from '../components/ProductCard';
 import Skeleton from '../components/Skeleton';
+import { formatINR } from '../utils/currency';
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [subs, setSubs] = useState([]);
   const [recommendedProducts, setRecommendedProducts] = useState([]);
   const [error, setError] = useState(null);
@@ -48,7 +50,7 @@ const Dashboard = () => {
     try {
       const updated = await api.patch(`/subscription/subscription/${s.id}/`, { status: s.status === 'paused' ? 'active' : 'paused' });
       setSubs((prev) => prev.map((p) => (p.id === s.id ? updated.data : p)));
-      window.dispatchEvent(new CustomEvent('toast', { detail:{ type: 'success', message: `Subscription ${updated.data.status === 'paused' ? 'paused' : 'resumed'}` } }));
+      window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', message: `Subscription ${updated.data.status === 'paused' ? 'paused' : 'resumed'}` } }));
     } catch {
       window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Failed to update subscription' } }));
     }
@@ -61,30 +63,30 @@ const Dashboard = () => {
       const cart = raw ? JSON.parse(raw) : [];
       const existing = cart.find(i => i.id === productId);
       if (existing) existing.qty = (existing.qty || 1) + 1;
-      else cart.push({ 
-        id: product.id, 
-        name: product.name, 
-        price: Number(product.price) || 0, 
-        image: product.image || null, 
-        qty: 1 
+      else cart.push({
+        id: product.id,
+        name: product.name,
+        price: Number(product.price) || 0,
+        image: product.image || null,
+        qty: 1
       });
       localStorage.setItem('cart', JSON.stringify(cart));
       window.dispatchEvent(new Event('storage'));
       window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', message: `Added ${product.name} to cart` } }));
-    } catch (e) { 
+    } catch (e) {
       window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Failed to add to cart' } }));
     }
   };
 
   const handleViewDetails = (productId) => {
-    window.location.href = `/product/${productId}`;
+    navigate(`/product/${productId}`);
   };
 
   const getSubscriptionTotal = (s) => {
     const price = Number(s.product_price) || 0;
     const quantity = Number(s.quantity) || 0;
     const duration = Number(s.duration) || 0;
-    return price * quantity * duration;
+    return price * quantity * 30 * duration;
   };
 
   const activeTotalPayable = subs
@@ -118,7 +120,7 @@ const Dashboard = () => {
                   <div className="muted">Active subscriptions</div>
                 </div>
                 <div className="stat-card">
-                  <div className="stat-value">${activeTotalPayable.toFixed(2)}</div>
+                  <div className="stat-value">{formatINR(activeTotalPayable)}</div>
                   <div className="muted">Total payable</div>
                 </div>
               </div>
@@ -132,7 +134,7 @@ const Dashboard = () => {
                   <div className="product-name">Active Subscriptions</div>
                   <div className="muted" style={{ marginTop: 6 }}>Manage deliveries, pause or resume plans.</div>
                   <div className="muted" style={{ marginTop: 6, fontWeight: 700 }}>
-                    Total payable: ${activeTotalPayable.toFixed(2)}
+                    Total payable: {formatINR(activeTotalPayable)}
                   </div>
                 </div>
                 <Link className="btn btn-sm" to="/subscribe/category">New Subscription</Link>
@@ -168,7 +170,7 @@ const Dashboard = () => {
                             </div>
                             <div className="muted" style={{ marginTop: 8 }}>{s.quantity} x {s.duration} month</div>
                             <div style={{ marginTop: 6, fontWeight: 700 }}>
-                              Total fee: ${getSubscriptionTotal(s).toFixed(2)}
+                              Total fee: {formatINR(getSubscriptionTotal(s))}
                             </div>
                             <div className="actions" style={{ marginTop: 12 }}>
                               <button className="btn btn-sm" onClick={() => togglePause(s)}>{s.status === 'paused' ? 'Resume' : 'Pause'}</button>
@@ -209,7 +211,7 @@ const Dashboard = () => {
                         reviewCount={0}
                         badge={p.is_popular ? 'Popular' : null}
                         isFavorite={false}
-                        onFavoriteToggle={() => {}}
+                        onFavoriteToggle={() => { }}
                         onViewDetails={handleViewDetails}
                         onAddToCart={handleAddToCart}
                       />

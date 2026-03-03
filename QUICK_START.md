@@ -129,7 +129,7 @@ Welcome to your management dashboard
 ```
 ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
 │ 👥 Total Custom │  │ 📦 Total Product│  │ ⚡ Active Subsc │  │ 📈 Total Revenu │
-│ 1,240 +12.5%    │  │ 48 +8.2%        │  │ 892 +18.7%      │  │ $54.3k +24.3%   │
+│ 1,240 +12.5%    │  │ 48 +8.2%        │  │ 892 +18.7%      │  │ ₹54.3k +24.3%   │
 └─────────────────┘  └─────────────────┘  └─────────────────┘  └─────────────────┘
 ```
 
@@ -143,7 +143,7 @@ Welcome to your management dashboard
 
 **Quick Stats Section**
 ```
-Avg. Revenue per Sub: $60.90
+Avg. Revenue per Sub: ₹60.90
 Customer Retention Rate: 94.2%
 New Subscriptions This Month: 142
 Avg. Subscription Duration: 6.5 months

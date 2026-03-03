@@ -68,7 +68,6 @@ class SubscriptionViewSet(APIView):
         auth_result = self._authenticate_customer_or_staff(request)
         if not auth_result:
             return Response({'detail': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
-        user = auth_result[0]
         sub_id = pk or request.parser_context.get('kwargs', {}).get('pk')
         if not sub_id:
             return Response({"detail": "Missing id"}, status=status.HTTP_400_BAD_REQUEST)
@@ -76,13 +75,9 @@ class SubscriptionViewSet(APIView):
             subscription = Subscription.objects.get(pk=sub_id)
         except Subscription.DoesNotExist:
             return Response({"detail": "Not found"}, status=status.HTTP_404_NOT_FOUND)
-        partial = True
-        serializer = SubscriptionSerializer(subscription, data=request.data, partial=partial)
+        serializer = SubscriptionSerializer(subscription, data=request.data, partial=True)
         if serializer.is_valid():
             obj = serializer.save()
-            if 'status' in request.data:
-                obj.is_active = request.data.get('status') == 'active'
-                obj.save()
             return Response(SubscriptionSerializer(obj).data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

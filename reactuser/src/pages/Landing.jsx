@@ -59,7 +59,7 @@ const Landing = () => {
           setProducts(res.data?.slice(0, 4) || []);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
 
     return () => {
       mounted = false;
@@ -174,12 +174,18 @@ const Landing = () => {
             {products.map((p) => (
               <Link to={`/product/${p.id}`} key={p.id} className="product-card">
                 <div className="product-img-wrapper">
-                  <img loading="lazy" src={`https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=600&sig=${p.id}`} alt={p.name} className="product-img" />
+                  <img
+                    loading="lazy"
+                    src={p.image || `https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=600&sig=${p.id}`}
+                    alt={p.name}
+                    className="product-img"
+                    onError={(e) => { e.target.src = 'https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=600'; }}
+                  />
                 </div>
                 <div className="product-info">
                   <h3 className="product-name">{p.name}</h3>
                   <div className="product-meta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span className="price">${p.price}</span>
+                    <span className="price">₹{p.price}</span>
                     <span className="btn-text" style={{ color: 'var(--color-brand-600)' }}>Subscribe &rarr;</span>
                   </div>
                 </div>

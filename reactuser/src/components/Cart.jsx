@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import emptyCart from '../assets/empty-cart.svg';
+import { formatINR } from '../utils/currency';
 
 const Cart = () => {
   const [open, setOpen] = useState(false);
@@ -68,7 +69,7 @@ const Cart = () => {
                 />
                 <div className="cart-item-info">
                   <div className="product-name">{it.name}</div>
-                  <div className="product-meta">${(it.price || 0).toFixed(2)}</div>
+                  <div className="product-meta">{formatINR(it.price)}</div>
                   <div className="cart-controls">
                     <button className="btn-sm" onClick={() => { updateQty(it.id, -1); window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'info', message: `Updated ${it.name}` } })); }}>-</button>
                     <div className="qty">{it.qty || 1}</div>
@@ -81,7 +82,7 @@ const Cart = () => {
           )}
         </div>
         <div className="cart-panel-footer">
-          <div className="cart-total">Total: <strong>${total}</strong></div>
+          <div className="cart-total">Total: <strong>{formatINR(total)}</strong></div>
           <div style={{ display: 'flex', gap: 8 }}>
             <Link to="/products" className="btn btn-sm" onClick={() => setOpen(false)}>Continue Shopping</Link>
             <Link to="/dashboard" className="btn" onClick={() => setOpen(false)}>Checkout</Link>

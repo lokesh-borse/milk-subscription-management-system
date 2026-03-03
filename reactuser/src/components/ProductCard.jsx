@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Heart, Star, ShoppingCart } from 'lucide-react';
 import './ProductCard.css';
+import { formatINR } from '../utils/currency';
 
 /**
  * ProductCard Component
@@ -86,6 +87,9 @@ const ProductCard = ({
           src={image || 'https://via.placeholder.com/200?text=Product'}
           alt={name}
           className="product-image"
+          onError={(e) => {
+            e.currentTarget.src = 'https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=900';
+          }}
         />
 
         {/* Badge */}
@@ -156,7 +160,7 @@ const ProductCard = ({
 
         {/* Price */}
         <div className="product-footer">
-          <span className="product-price">${price?.toFixed(2) || '0.00'}</span>
+          <span className="product-price">{formatINR(price)}</span>
         </div>
       </div>
     </div>

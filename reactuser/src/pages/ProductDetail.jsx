@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { formatINR } from '../utils/currency';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -50,7 +51,7 @@ const ProductDetail = () => {
           <div className="product-details-content">
             <h4 className="overline">Premium Selection</h4>
             <h1 className="title" style={{ fontSize: '4rem', marginBottom: '24px' }}>{product.name}</h1>
-            <div className="price-tag" style={{ fontSize: '2.5rem', marginBottom: '32px', color: 'var(--primary)', fontWeight: 500 }}>${product.price}</div>
+            <div className="price-tag" style={{ fontSize: '2.5rem', marginBottom: '32px', color: 'var(--primary)', fontWeight: 500 }}>{formatINR(product.price)}</div>
 
             <p className="subtitle" style={{ fontSize: '1.25rem', lineHeight: '1.7', marginBottom: '40px' }}>{product.description}</p>
 
