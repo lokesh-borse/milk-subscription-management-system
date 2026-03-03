@@ -1,5 +1,7 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import Sidebar from './Sidebar';
+import './Layout.css';
 
 const Layout = ({ children }) => {
     const navigate = useNavigate();
@@ -15,32 +17,11 @@ const Layout = ({ children }) => {
     if (!isLoggedIn) return <>{children}</>;
 
     return (
-        <div>
-            <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-                <div className="container">
-                    <Link className="navbar-brand" to="/">Milkman Admin</Link>
-                    <div className="collapse navbar-collapse">
-                        <ul className="navbar-nav me-auto">
-                            <li className="nav-item"><Link className="nav-link" to="/staff">Staff</Link></li>
-                            <li className="nav-item"><Link className="nav-link" to="/customer">Customers</Link></li>
-                            <li className="nav-item"><Link className="nav-link" to="/category">Categories</Link></li>
-                            <li className="nav-item"><Link className="nav-link" to="/product">Products</Link></li>
-                            <li className="nav-item"><Link className="nav-link" to="/subscription">Subscriptions</Link></li>
-                        </ul>
-                        <ul className="navbar-nav ms-auto">
-                            <li className="nav-item">
-                                <span className="nav-link text-light">Welcome, {user.email}</span>
-                            </li>
-                            <li className="nav-item">
-                                <button className="btn btn-link nav-link" onClick={handleLogout}>Logout</button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-            <div className="container" style={{ marginTop: '80px' }}>
+        <div className="layout-container">
+            <Sidebar user={user} onLogout={handleLogout} />
+            <main className="layout-main">
                 {children}
-            </div>
+            </main>
         </div>
     );
 };

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import ProgressStepper from '../../components/ProgressStepper';
 
 const Confirm = () => {
   const [draft, setDraft] = useState({});
@@ -10,6 +11,17 @@ const Confirm = () => {
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  const steps = [
+    { id: 1, label: 'Category', description: 'Choose category' },
+    { id: 2, label: 'Product', description: 'Select product' },
+    { id: 3, label: 'Quantity', description: 'Pick quantity' },
+    { id: 4, label: 'Duration', description: 'Select duration' },
+    { id: 5, label: 'Delivery Slot', description: 'Choose slot' },
+    { id: 6, label: 'Address', description: 'Delivery address' },
+    { id: 7, label: 'Confirm', description: 'Review order' },
+    { id: 8, label: 'Success', description: 'Complete!' },
+  ];
 
   useEffect(() => {
     const d = JSON.parse(sessionStorage.getItem('subDraft') || '{}');
@@ -47,25 +59,28 @@ const Confirm = () => {
   if (!draft) return null;
 
   return (
-    <div className="card card-body">
-      {error && <div className="card card-body" style={{ marginBottom: 12, borderColor: '#f8d7da', background: '#fff0f0' }}>{error}</div>}
-      <div className="product-name" style={{ marginBottom: 8 }}>Confirm Subscription</div>
-      <div className="grid cols-3" style={{ marginBottom: 12 }}>
-        <div className="card card-body">
-          <div className="muted">Product</div>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-            <img src={product?.image || `https://source.unsplash.com/128x128/?${encodeURIComponent(product?.name||'milk')}`} alt={product?.name} style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8 }} />
-            <strong>{product?.name || draft.product}</strong>
+    <div>
+      <ProgressStepper currentStep={7} steps={steps} orientation="horizontal" />
+      <div className="card card-body">
+        {error && <div className="card card-body" style={{ marginBottom: 12, borderColor: '#f8d7da', background: '#fff0f0' }}>{error}</div>}
+        <div className="product-name" style={{ marginBottom: 8 }}>Confirm Subscription</div>
+        <div className="grid cols-3" style={{ marginBottom: 12 }}>
+          <div className="card card-body">
+            <div className="muted">Product</div>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+              <img src={product?.image || `https://source.unsplash.com/128x128/?${encodeURIComponent(product?.name||'milk')}`} alt={product?.name} style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8 }} />
+              <strong>{product?.name || draft.product}</strong>
+            </div>
           </div>
+          <div className="card card-body"><div className="muted">Quantity</div><strong>{draft.quantity}</strong></div>
+          <div className="card card-body"><div className="muted">Duration</div><strong>{draft.duration} months</strong></div>
+          <div className="card card-body"><div className="muted">Delivery Slot</div><strong>{draft.delivery_slot}</strong></div>
+          <div className="card card-body" style={{ gridColumn:'span 2' }}><div className="muted">Address</div><strong>{draft.address}</strong></div>
         </div>
-        <div className="card card-body"><div className="muted">Quantity</div><strong>{draft.quantity}</strong></div>
-        <div className="card card-body"><div className="muted">Duration</div><strong>{draft.duration} months</strong></div>
-        <div className="card card-body"><div className="muted">Delivery Slot</div><strong>{draft.delivery_slot}</strong></div>
-        <div className="card card-body" style={{ gridColumn:'span 2' }}><div className="muted">Address</div><strong>{draft.address}</strong></div>
-      </div>
-      <div className="actions">
-        <button disabled={submitting} className="btn" onClick={confirm}>Confirm Subscription</button>
-        <Link className="btn outline" to="/subscribe/address">Back</Link>
+        <div className="actions">
+          <button disabled={submitting} className="btn" onClick={confirm}>Confirm Subscription</button>
+          <Link className="btn outline" to="/subscribe/address">Back</Link>
+        </div>
       </div>
     </div>
   );

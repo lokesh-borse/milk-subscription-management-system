@@ -22,7 +22,15 @@ class ProductViewSet(APIView):
             raise exceptions.NotAuthenticated('Staff credentials required')
         return rv
 
-    def get(self, request, format=None):
+    def get(self, request, pk=None, format=None):
+        if pk is not None:
+            try:
+                product = Product.objects.get(pk=pk)
+            except Product.DoesNotExist:
+                return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+            serializer = ProductSerializer(product)
+            return Response(serializer.data)
+
         products = Product.objects.all()
         category_id = request.query_params.get('category')
         if category_id:

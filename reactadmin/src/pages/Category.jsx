@@ -5,7 +5,8 @@ const Category = () => {
     const [items, setItems] = useState([]);
     const [newItem, setNewItem] = useState({
         name: '',
-        description: ''
+        description: '',
+        image: ''
     });
 
     const loadItems = async () => {
@@ -30,7 +31,7 @@ const Category = () => {
         e.preventDefault();
         try {
             await api.post('/category/category/', newItem);
-            setNewItem({ name: '', description: '' });
+            setNewItem({ name: '', description: '', image: '' });
             loadItems();
         } catch (err) {
             console.error('Error adding category:', err);
@@ -75,6 +76,17 @@ const Category = () => {
                                 required
                             />
                         </div>
+                        <div className="col-md-12">
+                            <label className="form-label">IMAGE URL</label>
+                            <input
+                                type="url"
+                                className="form-control"
+                                name="image"
+                                value={newItem.image}
+                                onChange={handleInputChange}
+                                placeholder="https://..."
+                            />
+                        </div>
                         <div className="col-12">
                             <button type="submit" className="btn btn-success">Add Category</button>
                         </div>
@@ -86,6 +98,7 @@ const Category = () => {
                     <tr>
                         <th>NAME</th>
                         <th>DESCRIPTION</th>
+                        <th>IMAGE</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -94,6 +107,13 @@ const Category = () => {
                         <tr key={item.id}>
                             <td>{item.name}</td>
                             <td>{item.description}</td>
+                            <td>
+                                {item.image ? (
+                                    <a href={item.image} target="_blank" rel="noreferrer">View</a>
+                                ) : (
+                                    '-'
+                                )}
+                            </td>
                             <td>
                                 <button className="btn btn-danger btn-sm" onClick={() => deleteItem(item.id)}>Delete</button>
                             </td>

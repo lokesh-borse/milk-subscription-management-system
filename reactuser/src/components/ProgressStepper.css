@@ -1,0 +1,359 @@
+/* ProgressStepper Component Styles */
+
+:root {
+  --primary-blue: #3b82f6;
+  --dark-blue: #1e40af;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --border-color: #e5e7eb;
+  --hover-bg: #f8fafc;
+  --light-bg: #f9fafb;
+  --success-green: #10b981;
+  --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --transition: 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.progress-stepper {
+  width: 100%;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--shadow-light);
+}
+
+.progress-stepper.horizontal {
+  margin-bottom: 20px;
+}
+
+.progress-stepper.vertical {
+  margin-bottom: 20px;
+}
+
+.stepper-wrapper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  position: relative;
+  padding: 10px 0;
+}
+
+.progress-stepper.horizontal .stepper-wrapper {
+  flex-direction: row;
+}
+
+.progress-stepper.vertical .stepper-wrapper {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.step-item-wrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 12px;
+  position: relative;
+}
+
+.progress-stepper.horizontal .step-item-wrapper {
+  flex-direction: column;
+}
+
+.progress-stepper.vertical .step-item-wrapper {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+/* Step Circle */
+.step-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: 50%;
+  font-weight: 700;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+
+.step-circle.pending {
+  background: white;
+  border: 2px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.step-circle.active {
+  background: var(--primary-blue);
+  border: 2px solid var(--primary-blue);
+  color: white;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.step-circle.completed {
+  background: var(--success-green);
+  border: 2px solid var(--success-green);
+  color: white;
+}
+
+.step-number {
+  position: absolute;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Step Connector */
+.step-connector {
+  position: absolute;
+  flex: 1;
+}
+
+.progress-stepper.horizontal .step-connector {
+  top: -2px;
+  left: 25%;
+  right: -25%;
+  height: 2px;
+  width: auto;
+}
+
+.progress-stepper.vertical .step-connector {
+  left: 19px;
+  top: 40px;
+  bottom: -40px;
+  width: 2px;
+  height: auto;
+}
+
+.connector-line {
+  width: 100%;
+  height: 100%;
+  background: var(--border-color);
+  transition: background-color var(--transition);
+}
+
+.step-connector.completed .connector-line {
+  background: var(--success-green);
+}
+
+.step-connector.pending .connector-line {
+  background: var(--border-color);
+}
+
+/* Step Label */
+.step-label {
+  text-align: center;
+  flex: 1;
+}
+
+.progress-stepper.horizontal .step-label {
+  text-align: center;
+}
+
+.progress-stepper.vertical .step-label {
+  text-align: left;
+  padding-left: 12px;
+  flex: 1;
+}
+
+.label-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.step-circle.pending ~ .step-label .label-text {
+  color: var(--text-secondary);
+}
+
+.label-description {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 4px 0 0;
+  line-height: 1.3;
+}
+
+/* Progress Bar */
+.progress-bar-container {
+  width: 100%;
+  height: 4px;
+  background: var(--border-color);
+  border-radius: 2px;
+  margin-top: 20px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-blue), var(--success-green));
+  border-radius: 2px;
+  transition: width var(--transition);
+  animation: progress-pulse 2s ease-in-out infinite;
+}
+
+@keyframes progress-pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .progress-stepper {
+    padding: 16px;
+  }
+
+  .stepper-wrapper {
+    gap: 12px;
+    padding: 8px 0;
+  }
+
+  .step-label {
+    flex: 0.8;
+  }
+
+  .label-text {
+    font-size: 13px;
+  }
+
+  .label-description {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 768px) {
+  .progress-stepper {
+    padding: 12px;
+  }
+
+  .progress-stepper.horizontal .stepper-wrapper {
+    flex-direction: column;
+  }
+
+  .progress-stepper.horizontal .step-item-wrapper {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .progress-stepper.horizontal .step-connector {
+    left: 19px;
+    top: 40px;
+    bottom: -40px;
+    width: 2px;
+    height: auto;
+    right: auto;
+  }
+
+  .step-circle {
+    min-width: 36px;
+  }
+
+  .label-text {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 640px) {
+  .progress-stepper {
+    padding: 12px;
+  }
+
+  .stepper-wrapper {
+    gap: 8px;
+    padding: 4px 0;
+  }
+
+  .step-item-wrapper {
+    gap: 10px;
+  }
+
+  .step-circle {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+  }
+
+  .step-circle svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .step-number {
+    font-size: 12px;
+  }
+
+  .step-label {
+    flex: 1;
+  }
+
+  .label-text {
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .label-description {
+    display: none;
+  }
+
+  .progress-bar-container {
+    margin-top: 12px;
+  }
+}
+
+/* Hover Effects */
+.step-circle:not(.pending) {
+  cursor: pointer;
+}
+
+.step-circle.completed:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+}
+
+.step-circle.active:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.15);
+}
+
+/* Animation on Mount */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.step-item-wrapper {
+  animation: slideIn 0.4s ease-out backwards;
+}
+
+.step-item-wrapper:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.step-item-wrapper:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.step-item-wrapper:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.step-item-wrapper:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+.step-item-wrapper:nth-child(n+5) {
+  animation-delay: 0.4s;
+}

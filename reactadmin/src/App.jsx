@@ -3,6 +3,7 @@ import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Layout from './components/Layout';
 import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
 import Staff from './pages/Staff';
 import Customer from './pages/Customer';
 import Category from './pages/Category';
@@ -20,12 +21,12 @@ function App() {
             <Layout>
                 <Routes>
                     <Route path="/login" element={<Login />} />
+                    <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
                     <Route path="/staff" element={<PrivateRoute><Staff /></PrivateRoute>} />
                     <Route path="/customer" element={<PrivateRoute><Customer /></PrivateRoute>} />
                     <Route path="/category" element={<PrivateRoute><Category /></PrivateRoute>} />
                     <Route path="/product" element={<PrivateRoute><Product /></PrivateRoute>} />
                     <Route path="/subscription" element={<PrivateRoute><Subscription /></PrivateRoute>} />
-                    <Route path="/" element={<Navigate to="/staff" />} />
                 </Routes>
             </Layout>
         </Router>

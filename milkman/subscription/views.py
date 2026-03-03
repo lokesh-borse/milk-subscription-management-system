@@ -40,7 +40,7 @@ class SubscriptionViewSet(APIView):
         # attach user if we can authenticate
         auth_result = self._authenticate_customer_or_staff(request)
         user = auth_result[0] if auth_result else getattr(request, "user", None)
-        subscriptions = Subscription.objects.all()
+        subscriptions = Subscription.objects.select_related("product").all()
         if isinstance(user, Customer):
             customer_id = user.pk
             subscriptions = subscriptions.filter(customer_id=customer_id)

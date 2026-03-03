@@ -1,108 +1,162 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
+
+const featureItems = [
+  {
+    title: 'Pre-Dawn Delivery',
+    desc: 'While you are sleeping, our route team delivers before sunrise.',
+    img: 'https://images.pexels.com/photos/28424335/pexels-photo-28424335.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    title: 'Glass-Bottled Purity',
+    desc: 'Returnable glass keeps flavor natural and supports a cleaner planet.',
+    img: 'https://images.pexels.com/photos/35190167/pexels-photo-35190167.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    title: 'Happy Pastures',
+    desc: 'Our cows graze freely on open fields for richer, cleaner milk.',
+    img: 'https://images.pexels.com/photos/5409664/pexels-photo-5409664.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+];
+
+const workflowItems = [
+  {
+    step: '01',
+    title: 'Farm Pickup Before Dawn',
+    text: 'Milk is collected from verified local farms every morning before processing begins.',
+  },
+  {
+    step: '02',
+    title: 'Quality Check and Chilling',
+    text: 'Each batch is tested, filtered, and chilled to maintain freshness and taste.',
+  },
+  {
+    step: '03',
+    title: 'Route-Based Delivery',
+    text: 'Subscriptions are delivered by slot and address, tracked through your dashboard.',
+  },
+];
+
+const heroStats = [
+  { value: '4.8/5', label: 'Customer rating' },
+  { value: '5AM', label: 'Earliest delivery' },
+  { value: '100%', label: 'Freshness checked' },
+];
 
 const Landing = () => {
   const [products, setProducts] = useState([]);
+  const { isAuthenticated } = useAuth();
+
+  const subscriptionStartPath = isAuthenticated ? '/subscribe/category' : '/signup';
 
   useEffect(() => {
     let mounted = true;
-    api.get('/product/product/').then((res) => {
-      if (mounted) setProducts(res.data?.slice(0, 4) || []);
-    }).catch(() => {});
-    return () => { mounted = false; };
+    api.get('/product/product/')
+      .then((res) => {
+        if (mounted) {
+          setProducts(res.data?.slice(0, 4) || []);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return (
-    <>
-      <section className="hero-fullscreen">
-        <picture>
-          <source type="image/webp" srcSet="https://images.pexels.com/photos/1276238/pexels-photo-1276238.jpeg?auto=compress&cs=tinysrgb&w=2500&fm=webp" />
-          <img
-            src="https://images.pexels.com/photos/1276238/pexels-photo-1276238.jpeg?auto=compress&cs=tinysrgb&w=2500"
-            alt="Fresh Morning Farm"
-            className="hero-bg"
-          />
-        </picture>
-        <div className="hero-overlay"></div>
-        <div className="hero-content">
-          <h1 className="fade-up">Dairy, Reimagined.</h1>
-          <p className="fade-up delay-1">Ethically sourced, estate-bottled, and delivered to your doorstep before dawn. Experience the pure essence of the pasture.</p>
-          <div className="hero-actions fade-up delay-2">
-            <Link to="/signup" className="btn btn-large btn-accent">Start Your Subscription</Link>
-            <Link to="/products" className="btn btn-outline-light btn-large">Explore Collection</Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="container grid cols-2 align-center gap-lg">
-          <div className="image-stack">
-            <img loading="lazy" src="https://images.pexels.com/photos/11556841/pexels-photo-11556841.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Our Herd" className="img-main" />
-            <img loading="lazy" src="https://images.pexels.com/photos/6803747/pexels-photo-6803747.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Fresh Milk" className="img-sub" />
-          </div>
-          <div>
-            <h4 className="overline">Our Heritage</h4>
-            <h2 className="title">Pasture-First Philosophy.</h2>
-            <p className="subtitle" style={{ marginTop: 14 }}>We believe that the finest dairy begins with the well-being of the herd. Our cows graze on nutrient-rich, pesticide-free pastures, producing milk that is as nature intended: pure, creamy, and wholesome.</p>
-            <Link to="/products" className="link-arrow" style={{ marginTop: 22 }}>Learn About Our Process &rarr;</Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="section bg-surface">
+    <div className="landing-premium">
+      <section className="lp-hero section">
         <div className="container">
-          <div className="section-header text-center">
-            <h4 className="overline">The Journey</h4>
-            <h2 className="title">From Pasture to Pour.</h2>
-            <p className="subtitle" style={{ margin: '10px auto 0', maxWidth: 680 }}>A seamless cycle of care, quality, and freshness.</p>
-          </div>
-          <div className="process-grid">
-            <div className="process-step">
-              <div className="process-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-              </div>
-              <h3>Ethical Sourcing</h3>
-              <p>We partner with local family farms that prioritize animal welfare and regenerative practices.</p>
-            </div>
-            <div className="process-step">
-              <div className="process-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
-              </div>
-              <h3>Pristine Processing</h3>
-              <p>State-of-the-art, small-batch bottling ensures maximum freshness and nutrient retention.</p>
-            </div>
-            <div className="process-step">
-              <div className="process-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-              </div>
-              <h3>Sunrise Delivery</h3>
-              <p>Your delivery arrives in chilled, reusable glass bottles before you even wake up.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="container">
-          <div className="section-header text-center">
-            <h4 className="overline">Our Collections</h4>
-            <h2 className="title">Curated Dairy Excellence.</h2>
-          </div>
-          <div className="grid cols-3 gap-md">
-            {[
-              { title: 'Pure Milk', img: 'https://images.pexels.com/photos/5990705/pexels-photo-5990705.jpeg?auto=compress&cs=tinysrgb&w=800' },
-              { title: 'Artisan Cheeses', img: 'https://images.pexels.com/photos/10585061/pexels-photo-10585061.jpeg?auto=compress&cs=tinysrgb&w=800' },
-              { title: 'Cultured Yogurt', img: 'https://images.pexels.com/photos/4006347/pexels-photo-4006347.jpeg?auto=compress&cs=tinysrgb&w=800' }
-            ].map((cat) => (
-              <div key={cat.title} className="category-visual-card">
-                <img loading="lazy" src={cat.img} alt={cat.title} />
-                <div className="cat-overlay">
-                  <h3>{cat.title}</h3>
-                  <Link to="/products" className="btn btn-sm btn-outline-light">Shop Collection</Link>
+          <div className="lp-hero-stage fade-up">
+            <img
+              src="https://images.pexels.com/photos/422218/pexels-photo-422218.jpeg?auto=compress&cs=tinysrgb&w=1800"
+              alt="Dairy farm morning landscape"
+            />
+            <div className="lp-hero-overlay">
+              <div className="lp-hero-copy">
+                <p className="lp-chip">Fresh from our estate to your doorstep</p>
+                <h1 className="lp-title">Taste the <span>Morning.</span></h1>
+                <p className="lp-subtitle">
+                  Heritage-bred cows, artisanal dairy craftsmanship, and reliable delivery before 7 AM.
+                </p>
+                <div className="hero-actions">
+                  <Link to={subscriptionStartPath} className="btn btn-large btn-accent">Start Subscription</Link>
+                  <Link to="/products" className="btn btn-large btn-outline-light">View Our Dairy</Link>
+                </div>
+                <div className="lp-stat-strip">
+                  {heroStats.map((item) => (
+                    <div key={item.label} className="lp-stat-item">
+                      <strong>{item.value}</strong>
+                      <span>{item.label}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <div className="section-header text-center">
+            <h4 className="overline">Why Milkman</h4>
+            <h2 className="title">Crafted for Better Mornings.</h2>
+          </div>
+          <div className="lp-feature-grid">
+            {featureItems.map((item) => (
+              <article key={item.title} className="lp-feature-card">
+                <img src={item.img} alt={item.title} loading="lazy" />
+                <div className="lp-feature-body">
+                  <h3>{item.title}</h3>
+                  <p>{item.desc}</p>
+                </div>
+              </article>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section lp-collection-band">
+        <div className="container lp-collection-grid">
+          <div className="lp-collection-image">
+            <img
+              src="https://images.pexels.com/photos/35190167/pexels-photo-35190167.jpeg?auto=compress&cs=tinysrgb&w=1400"
+              alt="Artisanal products"
+              loading="lazy"
+            />
+          </div>
+          <div>
+            <h4 className="overline">More Than Milk</h4>
+            <h2 className="title">Curated Dairy Collections.</h2>
+            <p className="subtitle" style={{ marginTop: 16 }}>
+              Explore our selection of artisanal cheeses, cultured yogurt, and hand-churned butter.
+            </p>
+            <Link to="/categories" className="btn" style={{ marginTop: 20 }}>Explore Collections</Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <div className="section-header text-center">
+            <h4 className="overline">How It Works</h4>
+            <h2 className="title">Milkman Delivery Workflow</h2>
+          </div>
+          <div className="lp-work-grid">
+            {workflowItems.map((item) => (
+              <article key={item.step} className="lp-work-card">
+                <span className="lp-work-step">{item.step}</span>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </article>
+            ))}
+          </div>
+          <div style={{ textAlign: 'center', marginTop: 24 }}>
+            <Link to={subscriptionStartPath} className="btn btn-accent">Start My Subscription</Link>
           </div>
         </div>
       </section>
@@ -134,7 +188,7 @@ const Landing = () => {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 };
 

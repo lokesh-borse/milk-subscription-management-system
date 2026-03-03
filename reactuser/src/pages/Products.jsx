@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import ProductCard from '../components/ProductCard';
+import Skeleton from '../components/Skeleton';
 
 const useQuery = () => new URLSearchParams(useLocation().search);
 
@@ -11,7 +12,7 @@ const Products = () => {
   const [error, setError] = useState(null);
   const q = useQuery();
   const category = q.get('category');
-  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const load = async () => {
@@ -32,6 +33,39 @@ const Products = () => {
     load();
   }, [category]);
 
+  const handleAddToCart = (productId) => {
+    try {
+      const product = products.find(p => p.id === productId);
+      const raw = localStorage.getItem('cart');
+      const cart = raw ? JSON.parse(raw) : [];
+      const existing = cart.find(i => i.id === productId);
+      if (existing) existing.qty = (existing.qty || 1) + 1;
+      else cart.push({ 
+        id: product.id, 
+        name: product.name, 
+        price: Number(product.price) || 0, 
+        image: product.image || null, 
+        qty: 1 
+      });
+      localStorage.setItem('cart', JSON.stringify(cart));
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', message: `Added ${product.name} to cart` } }));
+    } catch (e) { 
+      console.error('Error adding to cart:', e);
+      window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Failed to add to cart' } }));
+    }
+  };
+
+  const handleViewDetails = (productId) => {
+    navigate(`/product/${productId}`);
+  };
+
+  const handleFavoriteToggle = (productId, isFavorited) => {
+    // This can be enhanced to save favorites to localStorage or backend
+    const message = isFavorited ? 'Added to favorites' : 'Removed from favorites';
+    window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', message } }));
+  };
+
   return (
     <div className="section">
       <div className="container">
@@ -43,7 +77,9 @@ const Products = () => {
 
         {loading ? (
           <div className="grid cols-4 gap-md">
-            {[...Array(8)].map((_,i) => <div key={i} className="skeleton" style={{ height: 350, borderRadius: 16 }}></div>)}
+            {[...Array(8)].map((_, i) => (
+              <Skeleton key={i} height="350px" borderRadius="16px" />
+            ))}
           </div>
         ) : error ? (
           <div className="card card-body text-center">{error}</div>
@@ -51,49 +87,22 @@ const Products = () => {
           <div className="card card-body text-center">No products available at the moment.</div>
         ) : (
           <div className="grid cols-4 gap-md">
-            {products.map((p, idx) => (
-              <div className="product-card" key={p.id}>
-                <Link to={`/product/${p.id}`} className="product-img-wrapper">
-                  <img
-                    alt={p.name}
-                    className="product-img"
-                    loading="lazy"
-                    src={p.image || p.image_url || `https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=600&sig=${p.id || idx}`}
-                    onError={(e) => { e.target.src = `https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=600`; }}
-                  />
-                </Link>
-                <div className="product-info">
-                  <h3 className="product-name">{p.name}</h3>
-                  <p className="product-meta" style={{ fontSize: '0.85rem', marginBottom: 12, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', height: '2.8em' }}>{p.description}</p>
-
-                  <div className="product-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16 }}>
-                    <span className="price" style={{ fontSize: '1.25rem' }}>${p.price}</span>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <button
-                        className="btn btn-sm"
-                        style={{ padding: '8px 16px' }}
-                        onClick={() => {
-                          try {
-                            const raw = localStorage.getItem('cart');
-                            const cart = raw ? JSON.parse(raw) : [];
-                            const existing = cart.find(i => i.id === p.id);
-                            if (existing) existing.qty = (existing.qty || 1) + 1;
-                            else cart.push({ id: p.id, name: p.name, price: Number(p.price) || 0, image: p.image || null, qty: 1 });
-                            localStorage.setItem('cart', JSON.stringify(cart));
-                            window.dispatchEvent(new Event('storage'));
-                            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', message: `Added ${p.name} to cart` } }));
-                          } catch (e) { /* noop */ }
-                        }}
-                      >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.1-5.38H5.83"></path></svg>
-                      </button>
-                      <Link className="btn btn-sm btn-accent" style={{ padding: '8px 16px' }} to={isAuthenticated ? '/subscribe/category' : '/login'}>
-                        Subscribe
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            {products.map((p) => (
+              <ProductCard
+                key={p.id}
+                id={p.id}
+                name={p.name}
+                price={Number(p.price) || 0}
+                image={p.image || p.image_url || `https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=600&sig=${p.id}`}
+                category={p.category_name || p.category || 'Dairy'}
+                rating={4.5}
+                reviewCount={0}
+                badge={p.is_popular ? 'Popular' : p.is_new ? 'New' : null}
+                isFavorite={false}
+                onFavoriteToggle={handleFavoriteToggle}
+                onViewDetails={handleViewDetails}
+                onAddToCart={handleAddToCart}
+              />
             ))}
           </div>
         )}

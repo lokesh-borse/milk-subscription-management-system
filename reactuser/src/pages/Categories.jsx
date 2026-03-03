@@ -50,6 +50,14 @@ const Categories = () => {
           <div className="grid cols-4">
             {categories.map((cat) => (
               <article className="card card-body" key={cat.id}>
+                {cat.image ? (
+                  <img
+                    src={cat.image}
+                    alt={cat.name}
+                    style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: 12, marginBottom: 12 }}
+                    loading="lazy"
+                  />
+                ) : null}
                 <div className="product-name">{cat.name}</div>
                 <p className="product-desc" style={{ margin: '8px 0 18px' }}>{cat.description || 'Fresh curated category'}</p>
                 <Link className="btn btn-sm outline" to={`/products?category=${cat.id}`}>View Products</Link>

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Cart from './Cart.jsx';
 import Toast from './Toast.jsx';
-import logo from '../assets/logo.svg';
 
 const Layout = ({ children }) => {
   const { isAuthenticated, logout } = useAuth();
@@ -24,31 +23,30 @@ const Layout = ({ children }) => {
 
       <header className={`nav ${scrolled ? 'scrolled' : ''}`}>
         <div className="nav-inner">
-          <nav className="nav-group left">
-            <Link className="nav-link" to="/categories">Collections</Link>
-            <Link className="nav-link" to="/products">Our Dairy</Link>
+          <nav className="nav-group left nav-links-wrap">
+            <NavLink className={({ isActive }) => `nav-link nav-pill ${isActive ? 'active' : ''}`} to="/categories">Collections</NavLink>
+            <NavLink className={({ isActive }) => `nav-link nav-pill ${isActive ? 'active' : ''}`} to="/products">Our Dairy</NavLink>
           </nav>
 
           <div className="nav-group center">
-            <Link className="brand" to="/">
-              <img src={logo} alt="Milkman" className="brand-logo" />
-              <span style={{ marginLeft: 8 }}>Milkman.</span>
+            <Link className="brand brand-main" to="/">
+              <span className="brand-text">Milkman.</span>
             </Link>
           </div>
 
-          <nav className="nav-group right">
+          <nav className="nav-group right nav-actions-wrap">
             <Cart />
             {!isAuthenticated ? (
               <>
-                <Link className="nav-link" to="/login">Sign In</Link>
-                <Link className="btn btn-sm" to="/signup">Subscribe</Link>
+                <Link className="nav-link nav-pill" to="/login">Sign In</Link>
+                <Link className="btn btn-sm nav-cta" to="/signup">Subscribe</Link>
               </>
             ) : (
               <>
                 <Link className="nav-icon" to="/dashboard" title="Dashboard">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                 </Link>
-                <button className="nav-link btn-text" onClick={logout} title="Sign Out">Sign Out</button>
+                <button className="nav-link nav-pill btn-text" onClick={logout} title="Sign Out">Sign Out</button>
               </>
             )}
           </nav>

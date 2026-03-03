@@ -1,0 +1,55 @@
+/* Layout Component Styles */
+
+:root {
+  --sidebar-width: 280px;
+  --mobile-header-height: 60px;
+  --light-bg: #f9fafb;
+  --transition: 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.layout-container {
+  display: flex;
+  height: 100vh;
+  background: var(--light-bg);
+  overflow: hidden;
+}
+
+.layout-main {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--light-bg);
+  transition: margin-left var(--transition);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .layout-main {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .layout-main {
+    margin-left: 0;
+  }
+}
+
+/* Scrollbar styling */
+.layout-main::-webkit-scrollbar {
+  width: 8px;
+}
+
+.layout-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.layout-main::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+.layout-main::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}

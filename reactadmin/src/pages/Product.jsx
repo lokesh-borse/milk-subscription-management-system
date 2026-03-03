@@ -10,7 +10,8 @@ const Product = () => {
         name: '',
         price: '',
         category: '',
-        description: ''
+        description: '',
+        image: ''
     });
 
     const loadItems = async () => {
@@ -43,7 +44,7 @@ const Product = () => {
         e.preventDefault();
         try {
             await api.post('/product/product/', newItem);
-            setNewItem({ name: '', price: '', category: '', description: '' });
+            setNewItem({ name: '', price: '', category: '', description: '', image: '' });
             loadItems();
         } catch (err) {
             console.error('Error adding product:', err);
@@ -114,6 +115,17 @@ const Product = () => {
                                 onChange={handleInputChange}
                             />
                         </div>
+                        <div className="col-md-3">
+                            <label className="form-label">IMAGE URL</label>
+                            <input
+                                type="url"
+                                className="form-control"
+                                name="image"
+                                value={newItem.image}
+                                onChange={handleInputChange}
+                                placeholder="https://..."
+                            />
+                        </div>
                         <div className="col-12">
                             <button type="submit" className="btn btn-success">Add Product</button>
                         </div>
@@ -129,6 +141,7 @@ const Product = () => {
                         <th>PRICE</th>
                         <th>CATEGORY</th>
                         <th>DESCRIPTION</th>
+                        <th>IMAGE</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -137,8 +150,15 @@ const Product = () => {
                         <tr key={item.id}>
                             <td>{item.name}</td>
                             <td>${parseFloat(item.price).toFixed(2)}</td>
-                            <td>{item.category}</td>
+                            <td>{item.category_name || categories.find(c => c.id === item.category)?.name || item.category}</td>
                             <td>{item.description}</td>
+                            <td>
+                                {item.image ? (
+                                    <a href={item.image} target="_blank" rel="noreferrer">View</a>
+                                ) : (
+                                    '-'
+                                )}
+                            </td>
                             <td>
                                 <button className="btn btn-danger btn-sm" onClick={() => deleteItem(item.id)}>Delete</button>
                             </td>
