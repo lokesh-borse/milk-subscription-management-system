@@ -1,24 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Package, Zap, TrendingUp } from 'lucide-react';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import api from '../services/api';
 import './Dashboard.css';
-
-const subscriptionTrendData = [
-  { month: 'Jan', subscriptions: 400, revenue: 2400 },
-  { month: 'Feb', subscriptions: 520, revenue: 3221 },
-  { month: 'Mar', subscriptions: 645, revenue: 4290 },
-  { month: 'Apr', subscriptions: 723, revenue: 4891 },
-  { month: 'May', subscriptions: 812, revenue: 5490 },
-  { month: 'Jun', subscriptions: 892, revenue: 6200 },
-];
-
-const productCategoryData = [
-  { category: 'Regular Milk', sales: 420 },
-  { category: 'Organic Milk', sales: 310 },
-  { category: 'Yogurt', sales: 280 },
-  { category: 'Cheese', sales: 200 },
-];
 
 const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -95,51 +78,6 @@ const Dashboard = () => {
         <StatCard icon={Package} title="Total Products" value={stats.totalProducts} change={8.2} bgColor="#10b981" />
         <StatCard icon={Zap} title="Active Subscriptions" value={stats.activeSubscriptions.toLocaleString()} change={18.7} bgColor="#f59e0b" />
         <StatCard icon={TrendingUp} title="Total Revenue" value={`₹${activeTotalRevenue.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`} change={24.3} bgColor="#8b5cf6" />
-      </div>
-
-      {/* Charts */}
-      <div className="charts-section">
-        <div className="chart-card">
-          <div className="chart-header">
-            <h2 className="chart-title">Subscription Trends</h2>
-            <p className="chart-subtitle">Last 6 months performance</p>
-          </div>
-          {isLoading ? (
-            <div className="chart-skeleton" />
-          ) : (
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={subscriptionTrendData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} />
-                <YAxis stroke="#94a3b8" fontSize={12} />
-                <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }} />
-                <Legend />
-                <Line type="monotone" dataKey="subscriptions" stroke="#3b82f6" strokeWidth={2.5} dot={{ fill: '#3b82f6', r: 4 }} activeDot={{ r: 6 }} />
-                <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2.5} dot={{ fill: '#10b981', r: 4 }} activeDot={{ r: 6 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-
-        <div className="chart-card">
-          <div className="chart-header">
-            <h2 className="chart-title">Sales by Category</h2>
-            <p className="chart-subtitle">Product category distribution</p>
-          </div>
-          {isLoading ? (
-            <div className="chart-skeleton" />
-          ) : (
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={productCategoryData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="category" stroke="#94a3b8" fontSize={11} />
-                <YAxis stroke="#94a3b8" fontSize={12} />
-                <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }} />
-                <Bar dataKey="sales" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </div>
       </div>
 
       {/* Quick Stats */}

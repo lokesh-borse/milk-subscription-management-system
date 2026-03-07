@@ -1,19 +1,61 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { User, Mail, Phone, MapPin, Edit2, Package, Sparkles, Plus, Play, Pause, ArrowRight } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ProductCard from '../components/ProductCard';
 import Skeleton from '../components/Skeleton';
 import { formatINR } from '../utils/currency';
 
+// Empty State Milk Bottle SVG Component
+const MilkBottleIllustration = () => (
+  <svg viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg" className="milk-bottle-svg">
+    <defs>
+      <linearGradient id="bottleGrad" x1="60" y1="0" x2="60" y2="160" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#F8F9FA"/>
+        <stop offset="100%" stopColor="#E5E7EB"/>
+      </linearGradient>
+      <linearGradient id="milkGrad" x1="60" y1="60" x2="60" y2="140" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FEFEFE"/>
+        <stop offset="100%" stopColor="#F3F4F6"/>
+      </linearGradient>
+    </defs>
+    {/* Bottle neck */}
+    <path d="M45 10 L45 30 Q45 35 40 40 L40 45 Q40 50 50 50 L70 50 Q80 50 80 45 L80 40 Q75 35 75 30 L75 10 Q75 5 60 5 Q45 5 45 10Z" fill="url(#bottleGrad)" stroke="#1B4332" strokeWidth="2" strokeOpacity="0.2"/>
+    {/* Bottle body */}
+    <path d="M35 50 Q30 55 30 70 L30 140 Q30 155 60 155 Q90 155 90 140 L90 70 Q90 55 85 50 L35 50Z" fill="url(#bottleGrad)" stroke="#1B4332" strokeWidth="2" strokeOpacity="0.2"/>
+    {/* Milk level */}
+    <path d="M35 80 Q32 85 32 90 L32 138 Q32 150 60 150 Q88 150 88 138 L88 90 Q88 85 85 80 L35 80Z" fill="url(#milkGrad)" stroke="#1B4332" strokeWidth="1" strokeOpacity="0.1"/>
+    {/* Cap */}
+    <rect x="42" y="2" width="36" height="10" rx="3" fill="#1B4332" fillOpacity="0.9"/>
+    {/* Shine effect */}
+    <ellipse cx="48" cy="100" rx="6" ry="20" fill="white" fillOpacity="0.5"/>
+    {/* Label */}
+    <rect x="40" y="95" width="40" height="25" rx="4" fill="#1B4332" fillOpacity="0.1"/>
+    <text x="60" y="112" textAnchor="middle" fontSize="8" fill="#1B4332" fontWeight="600">FRESH</text>
+  </svg>
+);
+
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, updateProfile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [subs, setSubs] = useState([]);
   const [recommendedProducts, setRecommendedProducts] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [productsLoading, setProductsLoading] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({ name: '', email: '', phone: '', address: '' });
+
+  useEffect(() => {
+    setProfileForm({
+      name: user?.name || '',
+      email: user?.email || '',
+      phone: user?.phone || '',
+      address: user?.address || '',
+    });
+  }, [user?.name, user?.email, user?.phone, user?.address]);
 
   useEffect(() => {
     const load = async () => {
@@ -83,117 +125,309 @@ const Dashboard = () => {
   };
 
   const getSubscriptionTotal = (s) => {
-    const price = Number(s.product_price) || 0;
-    const quantity = Number(s.quantity) || 0;
-    const duration = Number(s.duration) || 0;
-    return price * quantity * 30 * duration;
+    return Number(s.outstanding_balance) || 0;
   };
 
   const activeTotalPayable = subs
-    .filter((s) => s.status === 'active')
+    .filter((s) => s.status === 'active' || s.status === 'paused')
     .reduce((sum, s) => sum + getSubscriptionTotal(s), 0);
 
+  const onProfileFieldChange = (e) => {
+    const { name, value } = e.target;
+    setProfileForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const saveProfile = async (e) => {
+    e.preventDefault();
+    const payload = {
+      name: profileForm.name.trim(),
+      email: profileForm.email.trim(),
+      phone: profileForm.phone.trim(),
+      address: profileForm.address.trim(),
+    };
+    const res = await updateProfile(payload);
+    if (res.ok) {
+      setIsEditingProfile(false);
+      window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', message: 'Profile updated successfully' } }));
+    } else {
+      window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: res.error || 'Failed to update profile' } }));
+    }
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.2, 0.8, 0.2, 1] } }
+  };
+
   return (
-    <section className="section">
+    <motion.section 
+      className="section"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
       <div className="container">
-        <div className="dashboard-hero card card-body" style={{ marginBottom: 24 }}>
-          <div>
-            <h2 className="title">Welcome back, {user?.name || 'Friend'}</h2>
-            <p className="subtitle">Here is a snapshot of your active subscriptions and recommendations.</p>
+        {/* Premium Hero Section */}
+        <motion.div 
+          className="dashboard-hero-premium glass-card"
+          variants={itemVariants}
+          style={{ 
+            padding: 'var(--space-7)', 
+            marginBottom: 'var(--space-6)',
+            background: 'linear-gradient(135deg, rgba(27, 67, 50, 0.03), rgba(201, 162, 39, 0.05))'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-5)' }}>
+            <div>
+              <p className="overline" style={{ marginBottom: 8 }}>Welcome back</p>
+              <h2 className="title" style={{ fontSize: 'clamp(1.6rem, 4vw, 2.2rem)', marginBottom: 8 }}>
+                {user?.name || 'Friend'}
+              </h2>
+              <p className="subtitle">Your premium dairy dashboard awaits. Fresh deliveries, managed effortlessly.</p>
+            </div>
+            <Link className="btn btn-accent" to="/subscribe/category">
+              <Plus size={18} />
+              New Subscription
+            </Link>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="grid" style={{ gridTemplateColumns: '320px 1fr', gap: 28 }}>
+        <div className="grid" style={{ gridTemplateColumns: '340px 1fr', gap: 28 }}>
+          {/* Sidebar */}
           <aside>
-            <div className="card card-body" style={{ marginBottom: 20 }}>
-              <div>
-                <div className="product-name">{user?.name || '-'}</div>
-                <div className="muted" style={{ fontSize: 13 }}>{user?.email || '-'}</div>
-              </div>
-            </div>
+            {/* Profile Card */}
+            <motion.div 
+              className="glass-card"
+              variants={itemVariants}
+              style={{ padding: 'var(--space-5)', marginBottom: 'var(--space-5)' }}
+            >
+              {!isEditingProfile ? (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-4)' }}>
+                    <div>
+                      <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.3rem', marginBottom: 4 }}>{user?.name || '-'}</h3>
+                      <span className="status-badge active" style={{ fontSize: '0.7rem' }}>
+                        <Sparkles size={12} />
+                        Premium Member
+                      </span>
+                    </div>
+                    <button 
+                      className="btn btn-sm outline" 
+                      onClick={() => setIsEditingProfile(true)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+                    >
+                      <Edit2 size={14} />
+                      Edit
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+                      <Mail size={16} /> {user?.email || '-'}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+                      <Phone size={16} /> {user?.phone || '-'}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+                      <MapPin size={16} style={{ flexShrink: 0, marginTop: 2 }} /> 
+                      <span>{user?.address || 'No address saved'}</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={saveProfile}>
+                  <div className="field">
+                    <label className="muted" style={{ fontSize: '0.85rem', fontWeight: 600 }}>Name</label>
+                    <input className="input" name="name" value={profileForm.name} onChange={onProfileFieldChange} required />
+                  </div>
+                  <div className="field">
+                    <label className="muted" style={{ fontSize: '0.85rem', fontWeight: 600 }}>Email</label>
+                    <input className="input" type="email" name="email" value={profileForm.email} onChange={onProfileFieldChange} required />
+                  </div>
+                  <div className="field">
+                    <label className="muted" style={{ fontSize: '0.85rem', fontWeight: 600 }}>Phone</label>
+                    <input className="input" name="phone" value={profileForm.phone} onChange={onProfileFieldChange} required />
+                  </div>
+                  <div className="field">
+                    <label className="muted" style={{ fontSize: '0.85rem', fontWeight: 600 }}>Address</label>
+                    <textarea className="textarea" name="address" value={profileForm.address} onChange={onProfileFieldChange} rows={3} required />
+                  </div>
+                  <div className="actions">
+                    <button type="submit" className="btn btn-sm" disabled={authLoading}>{authLoading ? 'Saving...' : 'Save'}</button>
+                    <button
+                      type="button"
+                      className="btn btn-sm outline"
+                      onClick={() => {
+                        setProfileForm({
+                          name: user?.name || '',
+                          email: user?.email || '',
+                          phone: user?.phone || '',
+                          address: user?.address || '',
+                        });
+                        setIsEditingProfile(false);
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              )}
+            </motion.div>
 
-            <div className="card card-body">
-              <div className="product-name">Account Summary</div>
-              <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
-                <div className="stat-card">
-                  <div className="stat-value">{subs.length}</div>
-                  <div className="muted">Active subscriptions</div>
+            {/* Account Summary */}
+            <motion.div 
+              className="glass-card"
+              variants={itemVariants}
+              style={{ padding: 'var(--space-5)' }}
+            >
+              <h4 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.1rem', marginBottom: 'var(--space-4)' }}>Account Summary</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div style={{ 
+                  background: 'linear-gradient(135deg, rgba(27, 67, 50, 0.06), rgba(27, 67, 50, 0.02))',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: 'var(--space-4)',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '2rem', fontWeight: 700, fontFamily: 'Playfair Display, serif', color: 'var(--color-brand-500)' }}>{subs.filter(s => s.status === 'active').length}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: 4 }}>Active Plans</div>
                 </div>
-                <div className="stat-card">
-                  <div className="stat-value">{formatINR(activeTotalPayable)}</div>
-                  <div className="muted">Total payable</div>
+                <div style={{ 
+                  background: 'linear-gradient(135deg, rgba(201, 162, 39, 0.1), rgba(201, 162, 39, 0.04))',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: 'var(--space-4)',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '1.4rem', fontWeight: 700, fontFamily: 'Playfair Display, serif', color: 'var(--color-brand-500)' }}>{formatINR(activeTotalPayable)}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: 4 }}>Outstanding</div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </aside>
 
+          {/* Main Content */}
           <main>
-            <div className="card card-body" style={{ marginBottom: 20 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+            {/* Subscriptions Section */}
+            <motion.div 
+              className="glass-card"
+              variants={itemVariants}
+              style={{ padding: 'var(--space-6)', marginBottom: 'var(--space-5)' }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5)' }}>
                 <div>
-                  <div className="product-name">Active Subscriptions</div>
-                  <div className="muted" style={{ marginTop: 6 }}>Manage deliveries, pause or resume plans.</div>
-                  <div className="muted" style={{ marginTop: 6, fontWeight: 700 }}>
-                    Total payable: {formatINR(activeTotalPayable)}
-                  </div>
+                  <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.4rem', marginBottom: 4 }}>Your Subscriptions</h3>
+                  <p className="muted" style={{ fontSize: '0.9rem' }}>Manage your daily dairy deliveries</p>
                 </div>
-                <Link className="btn btn-sm" to="/subscribe/category">New Subscription</Link>
               </div>
 
-              <div style={{ marginTop: 18 }}>
-                {loading ? (
-                  <div className="grid cols-3" style={{ gap: 16 }}>
-                    {[...Array(3)].map((_, i) => (
-                      <Skeleton key={i} height="120px" borderRadius="12px" />
-                    ))}
+              {loading ? (
+                <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+                  {[...Array(2)].map((_, i) => (
+                    <Skeleton key={i} height="180px" borderRadius="16px" />
+                  ))}
+                </div>
+              ) : error ? (
+                <div className="muted">{error}</div>
+              ) : subs.length === 0 ? (
+                /* Empty State with Milk Bottle */
+                <div className="empty-state">
+                  <div style={{ marginBottom: 'var(--space-5)' }}>
+                    <MilkBottleIllustration />
                   </div>
-                ) : error ? (
-                  <div className="muted">{error}</div>
-                ) : subs.length === 0 ? (
-                  <div className="muted">You have no active subscriptions. Explore our plans to get started.</div>
-                ) : (
-                  <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginTop: 8 }}>
-                    {subs.map((s) => (
-                      <div key={s.id} className="subscription-card card" style={{ padding: 12 }}>
-                        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                          <img
-                            src={s.product_image || `https://source.unsplash.com/120x120/?milk,product&sig=${s.id}`}
-                            alt={s.product_name}
-                            loading="lazy"
-                            onError={(e) => { e.target.src = `https://source.unsplash.com/120x120/?milk&sig=${s.id || Math.random()}`; }}
-                            style={{ width: 120, height: 96, objectFit: 'cover', borderRadius: 8 }}
-                          />
-                          <div style={{ flex: 1 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-                              <div style={{ fontWeight: 700 }}>{s.product_name || `Product #${s.product}`}</div>
-                              <div className={`status ${s.status}`}>{s.status}</div>
-                            </div>
-                            <div className="muted" style={{ marginTop: 8 }}>{s.quantity} x {s.duration} month</div>
-                            <div style={{ marginTop: 6, fontWeight: 700 }}>
-                              Total fee: {formatINR(getSubscriptionTotal(s))}
-                            </div>
-                            <div className="actions" style={{ marginTop: 12 }}>
-                              <button className="btn btn-sm" onClick={() => togglePause(s)}>{s.status === 'paused' ? 'Resume' : 'Pause'}</button>
-                              <Link className="btn btn-sm outline" to={`/product/${s.product}`}>Details</Link>
-                            </div>
+                  <h4 className="empty-state-title">No Subscriptions Yet</h4>
+                  <p className="empty-state-text">
+                    Start your fresh dairy journey with our premium subscription plans. Farm-fresh milk delivered to your doorstep daily.
+                  </p>
+                  <Link className="btn btn-accent" to="/subscribe/category">
+                    <Plus size={18} />
+                    Start Your First Subscription
+                  </Link>
+                </div>
+              ) : (
+                <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
+                  {subs.map((s, index) => (
+                    <motion.div 
+                      key={s.id} 
+                      className="subscription-card-premium"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                    >
+                      <div style={{ display: 'flex', gap: 16 }}>
+                        <img
+                          src={s.product_image || `https://source.unsplash.com/140x140/?milk,dairy&sig=${s.id}`}
+                          alt={s.product_name}
+                          loading="lazy"
+                          onError={(e) => { e.target.src = `https://source.unsplash.com/140x140/?milk&sig=${s.id || Math.random()}`; }}
+                          style={{ 
+                            width: 100, 
+                            height: 100, 
+                            objectFit: 'cover', 
+                            borderRadius: 'var(--radius-lg)',
+                            boxShadow: 'var(--shadow-sm)'
+                          }}
+                        />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
+                            <h4 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.1rem', lineHeight: 1.3 }}>
+                              {s.product_name || `Product #${s.product}`}
+                            </h4>
+                            <span className={`status-badge ${s.status}`}>
+                              {s.status === 'active' ? <Play size={12} /> : <Pause size={12} />}
+                              {s.status}
+                            </span>
+                          </div>
+                          <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', marginBottom: 8 }}>
+                            {s.quantity} unit/day • {s.active_days || 0} day{s.active_days === 1 ? '' : 's'}
+                          </p>
+                          <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-brand-500)' }}>
+                            {formatINR(getSubscriptionTotal(s))}
+                            <span style={{ fontWeight: 400, fontSize: '0.8rem', color: 'var(--color-text-muted)', marginLeft: 4 }}>outstanding</span>
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+                      <div className="actions" style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--color-border-light)' }}>
+                        <motion.button 
+                          className="btn btn-sm"
+                          onClick={() => togglePause(s)}
+                          whileTap={{ scale: 0.97 }}
+                        >
+                          {s.status === 'paused' ? <><Play size={14} /> Resume</> : <><Pause size={14} /> Pause</>}
+                        </motion.button>
+                        <Link className="btn btn-sm outline" to={`/subscription-details/${s.id}`}>
+                          Details <ArrowRight size={14} />
+                        </Link>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
 
-            <div className="card card-body">
-              <div className="section-header split" style={{ marginBottom: 12 }}>
-                <h3 className="title" style={{ fontSize: 20 }}>Recommended for you</h3>
-                <Link className="link-arrow" to="/products">See all &rarr;</Link>
+            {/* Recommendations Section */}
+            <motion.div 
+              className="glass-card"
+              variants={itemVariants}
+              style={{ padding: 'var(--space-6)' }}
+            >
+              <div className="section-header split" style={{ marginBottom: 'var(--space-5)' }}>
+                <div>
+                  <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.4rem', marginBottom: 4 }}>Recommended For You</h3>
+                  <p className="muted" style={{ fontSize: '0.9rem' }}>Curated selections from our farm</p>
+                </div>
+                <Link className="link-arrow" to="/products">See all <ArrowRight size={16} /></Link>
               </div>
               {productsLoading ? (
                 <div className="grid cols-4 gap-sm">
                   {[...Array(4)].map((_, i) => (
-                    <Skeleton key={i} height="280px" borderRadius="12px" />
+                    <Skeleton key={i} height="280px" borderRadius="16px" />
                   ))}
                 </div>
               ) : (
@@ -217,17 +451,18 @@ const Dashboard = () => {
                       />
                     ))
                   ) : (
-                    <div className="muted" style={{ gridColumn: '1 / -1', textAlign: 'center' }}>
-                      No products available
+                    <div className="empty-state" style={{ gridColumn: '1 / -1', padding: 'var(--space-8) 0' }}>
+                      <Package size={48} strokeWidth={1.5} style={{ opacity: 0.4, marginBottom: 'var(--space-4)' }} />
+                      <p className="muted">No products available at the moment</p>
                     </div>
                   )}
                 </div>
               )}
-            </div>
+            </motion.div>
           </main>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 

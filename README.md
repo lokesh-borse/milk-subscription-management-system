@@ -1,70 +1,50 @@
-# Milkman - Full Stack Dairy Subscription Platform
+# Milkman - Current Project Stage
 
-Milkman is a 3-part project:
+Last updated: 2026-03-08
 
-- Django REST backend (`milkman/`)
-- React user app (`reactuser/`)
-- React admin app (`reactadmin/`)
+Milkman is a three-part full-stack project:
 
-It supports category/product management, customer signup/login, subscription flow, dashboard summaries, and local image upload for products and categories from admin.
+- `milkman/` - Django REST backend
+- `reactuser/` - customer-facing React app
+- `reactadmin/` - staff/admin React app
+
+## Current Status
+
+- Backend APIs are functional for auth, catalog, subscriptions, and image upload.
+- `reactuser` is largely integrated and uses modern UI components and Framer Motion.
+- `reactadmin` has dashboard + sidebar integrated, but resource pages still use basic tables.
+- `reactadmin/src/components/DataTable.jsx` exists but is not yet wired into resource pages.
 
 ## Tech Stack
 
-- Backend: Django, Django REST Framework, SQLite, `corsheaders`
-- Frontend: React (Vite), React Router, Axios
-- Admin/User UI: Separate Vite apps
+- Backend: Django, Django REST Framework, SQLite, `django-cors-headers`
+- Frontend: React 19 + Vite, React Router, Axios
+- UI libs: Bootstrap, Lucide React, Recharts, Framer Motion
 
 ## Project Structure
 
 ```text
 daytwo/
-  milkman/       # Django API + SQLite DB + media files
-  reactuser/     # Customer-facing app
-  reactadmin/    # Staff admin app
+  milkman/
+  reactuser/
+  reactadmin/
 ```
 
-## Prerequisites
+## Quick Setup
 
-- Python 3.12+ (recommended)
-- Node.js 18+ and npm
-
-## 1) Backend Setup (Django)
-
-From `daytwo/`:
+### Backend
 
 ```bash
 cd milkman
-```
-
-Create and activate virtual environment (if needed), then install dependencies:
-
-```bash
 pip install django djangorestframework django-cors-headers
-```
-
-Run migrations:
-
-```bash
 python manage.py migrate
-```
-
-Optional: seed realistic categories/products/images:
-
-```bash
 python manage.py seed_catalog
-```
-
-Start backend:
-
-```bash
 python manage.py runserver
 ```
 
-Backend URL: `http://localhost:8000`
+Backend runs at `http://localhost:8000`.
 
-## 2) User App Setup
-
-From `daytwo/`:
+### User App
 
 ```bash
 cd reactuser
@@ -72,15 +52,10 @@ npm install
 npm run dev
 ```
 
-User app runs on Vite dev server (typically `http://localhost:5174` or similar).
+API base URL is dynamic by default: `http(s)://<current-host>:8000`.
+Override with `VITE_API_BASE_URL`.
 
-Notes:
-- User app backend base URL defaults to `http://<current-host>:8000`
-- You can override with `VITE_API_BASE_URL`
-
-## 3) Admin App Setup
-
-From `daytwo/`:
+### Admin App
 
 ```bash
 cd reactadmin
@@ -88,130 +63,90 @@ npm install
 npm run dev
 ```
 
-Admin app runs on Vite dev server (typically `http://localhost:5173`).
-
-Notes:
-- Admin API base URL is currently hardcoded to `http://localhost:8000`
-- Staff token is stored as `staffToken` in localStorage after login
+Admin API base URL is currently hardcoded to `http://localhost:8000`.
 
 ## Authentication Model
 
-- `POST /staff/login/` returns staff token (for admin actions)
-- `POST /customer/signup/` and `POST /customer/login/` return customer token (for user app)
-- Protected write operations require token via:
+- Staff login: `POST /staff/login/` -> stores `staffToken` in `localStorage`
+- Customer signup/login: `POST /customer/signup/`, `POST /customer/login/` -> stores `userToken`
+- Protected operations use:
 
 ```text
 Authorization: Token <token>
 ```
 
-## Core API Routes
+## API Endpoints (Current)
 
-Base: `http://localhost:8000`
+Base URL: `http://localhost:8000`
 
 - Staff
   - `POST /staff/login/`
   - `GET|POST /staff/staff/`
-  - `PUT|DELETE /staff/staff/<id>/`
-
-- Customers
+  - `GET|PUT|DELETE /staff/staff/<id>/`
+- Customer
   - `POST /customer/signup/`
   - `POST /customer/login/`
+  - `POST /customer/me/`
   - `GET|POST /customer/customer/`
-  - `PUT|DELETE /customer/customer/<id>/`
-
-- Categories
+  - `GET|PUT|DELETE /customer/customer/<id>/`
+- Category
   - `GET|POST /category/category/`
-  - `PUT|DELETE /category/category/<id>/`
-  - `POST /category/upload-image/`  (multipart file upload: field `image`)
-
-- Products
+  - `GET|PUT|DELETE /category/category/<id>/`
+  - `POST /category/upload-image/`
+- Product
   - `GET|POST /product/product/`
   - `GET|PUT|DELETE /product/product/<id>/`
-  - `POST /product/upload-image/`  (multipart file upload: field `image`)
-
-- Subscriptions
+  - `POST /product/upload-image/`
+- Subscription
   - `GET|POST /subscription/subscription/`
-  - `PATCH|PUT|DELETE /subscription/subscription/<id>/`
+  - `GET|PATCH|PUT|DELETE /subscription/subscription/<id>/`
 
-## Local Image Upload (Admin)
+## Image Upload
 
-You can upload local files directly in Admin:
+Admin supports local uploads for product/category images through backend upload endpoints.
 
-- Products page:
-  - Add form: choose file -> auto upload -> URL auto-filled
-  - Edit row: choose file -> auto upload -> URL auto-filled
+- Stored under:
+  - `milkman/media/products/`
+  - `milkman/media/categories/`
+- Served in dev at `/media/<path>`.
 
-- Categories page:
-  - Add form: choose file -> auto upload -> URL auto-filled
-  - Edit row: choose file -> auto upload -> URL auto-filled
+## Implemented vs Pending
 
-Backend stores uploaded files under:
+Implemented:
 
-```text
-milkman/media/products/
-milkman/media/categories/
-```
+- Backend auth, CRUD endpoints, subscription flow, and catalog seeding
+- User routes and 8-step subscription flow with `ProgressStepper`
+- `ProductCard`, form components, and Framer Motion animation in `reactuser`
+- Admin login, sidebar layout, and KPI dashboard
 
-And serves them in development through:
+Pending or partial:
 
-```text
-/media/<path>
-```
-
-## Currency + Billing Behavior
-
-- UI currency is INR (`₹`)
-- Dashboard subscription total uses:
-
-```text
-daily product price * quantity * 30 * duration(months)
-```
+- Integrate `DataTable` into admin resource pages (`Staff`, `Customer`, `Category`, `Product`, `Subscription`)
+- Move `reactadmin` API base URL to env variable
+- Harden backend password handling for production (currently not fully production-grade)
 
 ## Common Commands
 
-Backend:
-
 ```bash
+# backend
 cd milkman
 python manage.py runserver
-python manage.py migrate
 python manage.py seed_catalog
-```
 
-User frontend:
-
-```bash
+# user app
 cd reactuser
 npm run dev
 npm run build
-```
 
-Admin frontend:
-
-```bash
+# admin app
 cd reactadmin
 npm run dev
 npm run build
 ```
 
-## Troubleshooting
+## Notes for Production
 
-- Images not loading:
-  - Ensure backend is running (`:8000`)
-  - Hard refresh browser (`Ctrl+F5`)
-  - Verify image URL in admin table
-  - Check `media/` file exists for uploaded images
-
-- 401/403 in admin writes:
-  - Staff token missing/expired; login again in admin
-
-- CORS/API issues:
-  - Backend must be running before frontend
-  - Confirm frontend points to `http://localhost:8000`
-
-## Production Notes
-
-- `DEBUG=True` and `ALLOWED_HOSTS=['*']` are dev settings; harden before deployment
-- Serve static/media via proper web server/CDN in production
-- Move secrets and DB config to environment variables
+- Replace development settings (`DEBUG`, permissive CORS, broad hosts).
+- Serve static/media with proper infrastructure.
+- Move secrets and API URLs to environment variables.
 

@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import emptyCart from '../assets/empty-cart.svg';
 import { formatINR } from '../utils/currency';
 
 const Cart = () => {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState([]);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const load = () => {
@@ -13,8 +15,10 @@ const Cart = () => {
         const raw = localStorage.getItem('cart');
         const parsed = raw ? JSON.parse(raw) : [];
         setItems(parsed);
+        setSelectedIds(parsed.map((i) => i.id));
       } catch (e) {
         setItems([]);
+        setSelectedIds([]);
       }
     };
     load();
@@ -27,13 +31,47 @@ const Cart = () => {
     localStorage.setItem('cart', JSON.stringify(next));
   };
 
-  const remove = (id) => save(items.filter(i => i.id !== id));
+  const remove = (id) => {
+    save(items.filter(i => i.id !== id));
+    setSelectedIds((prev) => prev.filter((x) => x !== id));
+  };
   const updateQty = (id, delta) => {
     const next = items.map(i => i.id === id ? { ...i, qty: Math.max(1, (i.qty || 1) + delta) } : i);
     save(next);
   };
 
+  const toggleItemSelection = (id) => {
+    setSelectedIds((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+  };
+
   const total = items.reduce((s, i) => s + ((i.price || 0) * (i.qty || 1)), 0).toFixed(2);
+  const selectedItems = items.filter((i) => selectedIds.includes(i.id));
+  const selectedTotal = selectedItems.reduce((s, i) => s + ((i.price || 0) * (i.qty || 1)), 0).toFixed(2);
+  const hasSelection = selectedItems.length > 0;
+
+  const handleCheckout = () => {
+    if (!hasSelection) {
+      window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'warning', message: 'Please select at least one item to proceed.' } }));
+      return;
+    }
+
+    const primaryItem = selectedItems[0];
+    const draft = JSON.parse(sessionStorage.getItem('subDraft') || '{}');
+
+    // Carry selected items for checkout while preserving current single-product compatibility fields.
+    sessionStorage.setItem('subDraft', JSON.stringify({
+      ...draft,
+      product: primaryItem.id,
+      quantity: Number(primaryItem.qty) || 1,
+      cartItems: selectedItems.map((item) => ({
+        product: item.id,
+        quantity: Number(item.qty) || 1,
+      })),
+    }));
+
+    setOpen(false);
+    navigate('/subscribe/duration');
+  };
 
   // side-effects for user feedback
   useEffect(() => {
@@ -62,6 +100,13 @@ const Cart = () => {
           ) : (
             items.map(it => (
               <div className="cart-item" key={it.id}>
+                <label className="cart-item-select" title="Select for checkout">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(it.id)}
+                    onChange={() => toggleItemSelection(it.id)}
+                  />
+                </label>
                 <img
                   src={it.image || `https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=200&sig=${it.id}`}
                   alt={it.name}
@@ -82,10 +127,14 @@ const Cart = () => {
           )}
         </div>
         <div className="cart-panel-footer">
-          <div className="cart-total">Total: <strong>{formatINR(total)}</strong></div>
+          <div className="cart-total">
+            <div>Total: <strong>{formatINR(total)}</strong></div>
+            <div className="muted" style={{ fontSize: 13 }}>Selected: {selectedItems.length} item(s) • {formatINR(selectedTotal)}</div>
+            {!hasSelection && items.length > 0 && <div style={{ color: 'var(--color-danger)', fontSize: 13 }}>Please select at least one item to proceed.</div>}
+          </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <Link to="/products" className="btn btn-sm" onClick={() => setOpen(false)}>Continue Shopping</Link>
-            <Link to="/dashboard" className="btn" onClick={() => setOpen(false)}>Checkout</Link>
+            <button className="btn" onClick={handleCheckout} disabled={!items.length || !hasSelection}>Checkout</button>
           </div>
         </div>
       </div>

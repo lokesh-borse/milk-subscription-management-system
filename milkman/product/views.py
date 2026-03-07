@@ -37,8 +37,11 @@ class ProductViewSet(APIView):
 
         products = Product.objects.all()
         category_id = request.query_params.get('category')
+        search = request.query_params.get('search')
         if category_id:
             products = products.filter(category_id=category_id)
+        if search:
+            products = products.filter(name__icontains=search)
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
 

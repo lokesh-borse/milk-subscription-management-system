@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { formatINR } from '../utils/currency';
@@ -9,6 +9,7 @@ const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const load = async () => {
@@ -26,6 +27,23 @@ const ProductDetail = () => {
 
   if (loading) return <div className="container" style={{ marginTop: '100px', textAlign: 'center' }}>Loading...</div>;
   if (!product) return <div className="container">Not found.</div>;
+
+  const categoryLabel = product.category_name || 'Dairy';
+
+  const handleStartSubscription = () => {
+    const draft = {
+      category: product.category,
+      product: product.id,
+    };
+    sessionStorage.setItem('subDraft', JSON.stringify(draft));
+
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
+    navigate('/subscribe/quantity');
+  };
 
   return (
     <div className="section">
@@ -51,6 +69,9 @@ const ProductDetail = () => {
           <div className="product-details-content">
             <h4 className="overline">Premium Selection</h4>
             <h1 className="title" style={{ fontSize: '4rem', marginBottom: '24px' }}>{product.name}</h1>
+            <p className="subtitle" style={{ marginBottom: '8px', color: 'var(--muted)' }}>
+              Category: <strong style={{ color: 'var(--primary)' }}>{categoryLabel}</strong>
+            </p>
             <div className="price-tag" style={{ fontSize: '2.5rem', marginBottom: '32px', color: 'var(--primary)', fontWeight: 500 }}>{formatINR(product.price)}</div>
 
             <p className="subtitle" style={{ fontSize: '1.25rem', lineHeight: '1.7', marginBottom: '40px' }}>{product.description}</p>
@@ -71,9 +92,9 @@ const ProductDetail = () => {
             </div>
 
             <div className="actions" style={{ display: 'flex', gap: '24px' }}>
-              <Link to={isAuthenticated ? '/subscribe/category' : '/login'} className="btn btn-large btn-accent" style={{ flex: 1 }}>
+              <button className="btn btn-large btn-accent" style={{ flex: 1 }} onClick={handleStartSubscription}>
                 Start Subscription
-              </Link>
+              </button>
               <button
                 className="btn btn-large btn-outline"
                 style={{ borderColor: 'var(--primary)', color: 'var(--primary)' }}

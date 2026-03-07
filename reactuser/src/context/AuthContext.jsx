@@ -19,11 +19,11 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const res = await api.post('/customer/login/', { email, password });
-      const { token: t, customer_id, name } = res.data;
+      const { token: t, customer_id, name, phone, address } = res.data;
       localStorage.setItem('userToken', t);
-      localStorage.setItem('userProfile', JSON.stringify({ id: customer_id, email, name }));
+      localStorage.setItem('userProfile', JSON.stringify({ id: customer_id, email, name, phone, address }));
       setToken(t);
-      setUser({ id: customer_id, email, name });
+      setUser({ id: customer_id, email, name, phone, address });
       return { ok: true };
     } catch (e) {
       return { ok: false, error: e.response?.data?.detail || 'Login failed' };
@@ -35,12 +35,14 @@ export const AuthProvider = ({ children }) => {
   const signup = async (payload) => {
     setLoading(true);
     try {
-      const res = await api.post('/customer/signup/', payload);
-      const { token: t, customer_id, name, email } = res.data;
-      localStorage.setItem('userToken', t);
-      localStorage.setItem('userProfile', JSON.stringify({ id: customer_id, email, name }));
-      setToken(t);
-      setUser({ id: customer_id, email, name });
+      await api.post('/customer/signup/', payload);
+
+      // Signup should not create an authenticated session.
+      localStorage.removeItem('userToken');
+      localStorage.removeItem('userProfile');
+      setToken(null);
+      setUser(null);
+
       return { ok: true };
     } catch (e) {
       return { ok: false, error: e.response?.data?.detail || 'Signup failed' };
@@ -56,13 +58,63 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateProfile = async (payload) => {
+    setLoading(true);
+    try {
+      const res = await api.patch('/customer/me/', payload);
+      const profile = {
+        id: res.data?.customer_id,
+        name: res.data?.name,
+        email: res.data?.email,
+        phone: res.data?.phone,
+        address: res.data?.address,
+      };
+      localStorage.setItem('userProfile', JSON.stringify(profile));
+      setUser(profile);
+      return { ok: true, data: profile };
+    } catch (e) {
+      return { ok: false, error: e.response?.data?.detail || 'Failed to update profile' };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const value = useMemo(() => ({
-    user, token, isAuthenticated, loading, login, signup, logout,
+    user, token, isAuthenticated, loading, login, signup, logout, updateProfile,
   }), [user, token, isAuthenticated, loading]);
 
   useEffect(() => {
-    // future: verify token freshness
-  }, []);
+    let mounted = true;
+
+    const hydrateProfile = async () => {
+      if (!token) return;
+      if (user?.address && user?.phone) return;
+
+      try {
+        const res = await api.get('/customer/me/');
+        const profile = {
+          id: res.data?.customer_id,
+          name: res.data?.name,
+          email: res.data?.email,
+          phone: res.data?.phone,
+          address: res.data?.address,
+        };
+
+        if (!mounted) return;
+
+        localStorage.setItem('userProfile', JSON.stringify(profile));
+        setUser(profile);
+      } catch {
+        // 401 handling is managed globally in api interceptor.
+      }
+    };
+
+    hydrateProfile();
+
+    return () => {
+      mounted = false;
+    };
+  }, [token, user?.address, user?.phone]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

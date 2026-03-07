@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FormInput } from '../components/Form';
 
@@ -10,6 +10,9 @@ const Login = () => {
   const [error, setError] = useState(null);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const location = useLocation();
+  const successMessage = location.state?.successMessage;
+  const redirectTo = location.state?.from || '/';
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -17,7 +20,7 @@ const Login = () => {
     setErrors({});
     
     const res = await login(email, password);
-    if (res.ok) navigate('/dashboard');
+    if (res.ok) navigate(redirectTo, { replace: true });
     else setError(res.error);
   };
 
@@ -29,6 +32,11 @@ const Login = () => {
             <h2 className="title">Welcome back</h2>
             <p className="subtitle">Sign in to manage your subscriptions and deliveries.</p>
           </div>
+          {successMessage && (
+            <div className="card card-body" style={{ borderColor: '#bbf7d0', color: '#14532d', marginBottom: 12 }}>
+              {successMessage}
+            </div>
+          )}
           {error && <div className="card card-body" style={{ borderColor: '#fecaca', color: '#7f1d1d', marginBottom: 12 }}>{error}</div>}
           <form onSubmit={onSubmit} className="card card-body">
             <FormInput

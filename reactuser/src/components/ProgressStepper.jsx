@@ -1,40 +1,49 @@
 import React from 'react';
-import { CheckCircle2, Circle } from 'lucide-react';
+import { Check } from 'lucide-react';
 import './ProgressStepper.css';
 
 /**
- * ProgressStepper Component
+ * ProgressStepper Component - Premium Organic Farm Aesthetic
  * Visual indicator for multi-step processes
  * Features:
- * - Numbered steps in circles
- * - Current step highlighting
- * - Completed steps with checkmark
- * - Connection lines between steps
- * - Step labels
- * - Responsive design (vertical on mobile, horizontal on desktop)
+ * - Large glowing success circles when completed
+ * - Smooth animated progress bar
+ * - Mobile-responsive "Step X of 8" view
+ * - Premium typography and shadows
  */
 const ProgressStepper = ({
   currentStep = 1,
   steps = [],
   orientation = 'horizontal',
-  size = 'medium',
+  size = 'large',
 }) => {
   const stepSize = {
-    small: 32,
-    medium: 40,
-    large: 48,
+    small: 36,
+    medium: 44,
+    large: 52,
   };
 
   const stepDimension = stepSize[size];
+  const progressPercentage = ((currentStep - 1) / (steps.length - 1)) * 100;
 
   return (
     <div className={`progress-stepper ${orientation}`}>
+      {/* Mobile Step Indicator */}
+      <div className="mobile-step-indicator">
+        <span className="step-badge">
+          Step {currentStep} of {steps.length}
+        </span>
+        <p style={{ marginTop: 8, fontSize: 14, color: 'var(--stepper-text-muted)' }}>
+          {steps[currentStep - 1]?.label}
+        </p>
+      </div>
+
+      {/* Desktop Stepper */}
       <div className="stepper-wrapper">
         {steps.map((step, index) => {
           const stepNumber = index + 1;
           const isCompleted = stepNumber < currentStep;
           const isActive = stepNumber === currentStep;
-          const isPending = stepNumber > currentStep;
 
           return (
             <div key={step.id || index} className="step-item-wrapper">
@@ -62,11 +71,8 @@ const ProgressStepper = ({
                 }}
               >
                 {isCompleted ? (
-                  <CheckCircle2 size={stepDimension - 4} />
+                  <Check size={stepDimension * 0.5} strokeWidth={3} />
                 ) : (
-                  <Circle size={stepDimension - 4} />
-                )}
-                {!isCompleted && (
                   <span className="step-number">{stepNumber}</span>
                 )}
               </div>
@@ -74,18 +80,18 @@ const ProgressStepper = ({
               {/* Step Label */}
               <div className="step-label">
                 <p className="label-text">{step.label}</p>
-                {step.description && (
-                  <p className="label-description">{step.description}</p>
-                )}
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Progress Bar (alternative compact view) */}
+      {/* Progress Bar */}
       <div className="progress-bar-container">
-        <div className="progress-bar-fill"></div>
+        <div 
+          className="progress-bar-fill"
+          style={{ width: `${progressPercentage}%` }}
+        ></div>
       </div>
     </div>
   );

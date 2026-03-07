@@ -40,7 +40,6 @@ const workflowItems = [
 ];
 
 const heroStats = [
-  { value: '4.8/5', label: 'Customer rating' },
   { value: '5AM', label: 'Earliest delivery' },
   { value: '100%', label: 'Freshness checked' },
 ];
@@ -82,17 +81,19 @@ const Landing = () => {
                 <p className="lp-subtitle">
                   Heritage-bred cows, artisanal dairy craftsmanship, and reliable delivery before 7 AM.
                 </p>
-                <div className="hero-actions">
-                  <Link to={subscriptionStartPath} className="btn btn-large btn-accent">Start Subscription</Link>
-                  <Link to="/products" className="btn btn-large btn-outline-light">View Our Dairy</Link>
-                </div>
-                <div className="lp-stat-strip">
-                  {heroStats.map((item) => (
-                    <div key={item.label} className="lp-stat-item">
-                      <strong>{item.value}</strong>
-                      <span>{item.label}</span>
-                    </div>
-                  ))}
+                <div className="hero-cta-section">
+                  <div className="hero-actions">
+                    <Link to={subscriptionStartPath} className="btn btn-large btn-accent">Start Subscription</Link>
+                    <Link to="/products" className="btn btn-large btn-outline-light">View Our Dairy</Link>
+                  </div>
+                  <div className="lp-stat-strip">
+                    {heroStats.map((item) => (
+                      <div key={item.label} className="lp-stat-item">
+                        <strong>{item.value}</strong>
+                        <span>{item.label}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

@@ -19,6 +19,7 @@ import DeliverySlot from './pages/subscription/DeliverySlot.jsx';
 import Address from './pages/subscription/Address.jsx';
 import Confirm from './pages/subscription/Confirm.jsx';
 import Success from './pages/subscription/Success.jsx';
+import SubscriptionDetails from './pages/subscription/SubscriptionDetails.jsx';
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
             <Route path="/subscribe/address" element={<PrivateRoute><Address /></PrivateRoute>} />
             <Route path="/subscribe/confirm" element={<PrivateRoute><Confirm /></PrivateRoute>} />
             <Route path="/subscribe/success" element={<PrivateRoute><Success /></PrivateRoute>} />
+            <Route path="/subscription-details/:id" element={<PrivateRoute><SubscriptionDetails /></PrivateRoute>} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Layout>

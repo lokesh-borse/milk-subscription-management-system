@@ -12,15 +12,19 @@ const Products = () => {
   const [error, setError] = useState(null);
   const q = useQuery();
   const category = q.get('category');
+  const search = q.get('search');
   const navigate = useNavigate();
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       setError(null);
-      console.debug('[Products] Fetching...', { category });
+      console.debug('[Products] Fetching...', { category, search });
       try {
-        const res = await api.get('/product/product/', { params: category ? { category } : {} });
+        const params = {};
+        if (category) params.category = category;
+        if (search) params.search = search;
+        const res = await api.get('/product/product/', { params });
         setProducts(res.data || []);
         console.debug('[Products] Loaded', res.data?.length);
       } catch (e) {
@@ -31,7 +35,7 @@ const Products = () => {
       }
     };
     load();
-  }, [category]);
+  }, [category, search]);
 
   const handleAddToCart = (productId) => {
     try {
@@ -70,9 +74,23 @@ const Products = () => {
     <div className="section">
       <div className="container">
         <div className="section-header text-center">
-          <h4 className="overline">Our Full Collection</h4>
-          <h1 className="title">Estate-Sourced Dairy</h1>
-          <p className="subtitle" style={{ margin: '0 auto 60px' }}>Explore our range of fresh, organic, and artisan dairy products delivered daily from the pasture to your home.</p>
+          <h4 className="overline">{search ? 'Search Results' : 'Our Full Collection'}</h4>
+          <h1 className="title">{search ? `Results for "${search}"` : 'Estate-Sourced Dairy'}</h1>
+          <p className="subtitle" style={{ margin: '0 auto 60px' }}>
+            {search 
+              ? (loading ? 'Searching...' : `Found ${products.length} product${products.length !== 1 ? 's' : ''} matching your search.`)
+              : 'Explore our range of fresh, organic, and artisan dairy products delivered daily from the pasture to your home.'
+            }
+          </p>
+          {search && (
+            <button 
+              onClick={() => navigate('/products')} 
+              className="btn btn-outline"
+              style={{ marginBottom: '20px' }}
+            >
+              Clear Search
+            </button>
+          )}
         </div>
 
         {loading ? (

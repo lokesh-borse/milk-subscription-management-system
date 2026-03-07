@@ -15,7 +15,11 @@ const Signup = () => {
     e.preventDefault();
     setError(null);
     const res = await signup(form);
-    if (res.ok) navigate('/dashboard');
+    if (res.ok) {
+      navigate('/login', {
+        state: { successMessage: 'Registration successful! Please log in to continue.' },
+      });
+    }
     else setError(res.error);
   };
 
