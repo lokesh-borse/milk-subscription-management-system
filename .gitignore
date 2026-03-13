@@ -1,6 +1,7 @@
 venv/
 backend/node_modules
+reactadmin/node_modules
+reactuser/node_modules
 daytwo/CHANGELOG.md
 daytwo/COMPONENT_INTEGRATION_GUIDE.md
-daytwo/PROJECT_COMPLETION_SUMMARY.md
 daytwo/PROJECT_COMPLETION_SUMMARY.md

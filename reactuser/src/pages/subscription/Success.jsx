@@ -174,7 +174,7 @@ const Success = () => {
                   <Settings size={18} color="var(--color-brand-500)" />
                 </div>
                 <span style={{ fontSize: '0.95rem', color: 'var(--color-text)' }}>
-                  Manage your subscription anytime - pause, resume, or modify
+                  Manage your subscription anytime - pause, resume.
                 </span>
               </div>
             </div>
