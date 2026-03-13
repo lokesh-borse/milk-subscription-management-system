@@ -119,7 +119,7 @@ const Subscription = () => {
                         </div>
                         <div>
                             <label style={ps.label}>Duration (months)</label>
-                            <input type="number" min="1" name="duration" value={newItem.duration} onChange={onChange} required style={ps.input}
+                            <input type="number" min="1" max="4" name="duration" value={newItem.duration} onChange={onChange} required style={ps.input}
                                 onFocus={e => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.15)'; }}
                                 onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }}
                             />

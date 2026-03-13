@@ -20,6 +20,12 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     def get_outstanding_balance(self, obj):
         return str(obj.outstanding_balance())
 
+    def validate_duration(self, value):
+        duration = int(value)
+        if duration < 1 or duration > 4:
+            raise serializers.ValidationError("Duration must be between 1 and 4 months.")
+        return duration
+
     class Meta:
         model = Subscription
         fields = [

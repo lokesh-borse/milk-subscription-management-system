@@ -16,9 +16,9 @@ const SelectDuration = () => {
 
   const durationOptions = [
     { value: 1, label: '1 Month', popular: false },
+    { value: 2, label: '2 Months', popular: false, discount: '3% savings' },
     { value: 3, label: '3 Months', popular: true, discount: '5% savings' },
-    { value: 6, label: '6 Months', popular: false, discount: '10% savings' },
-    { value: 12, label: '12 Months', popular: false, discount: '15% savings' },
+    { value: 4, label: '4 Months', popular: false, discount: '7% savings' },
   ];
 
   const frequencyOptions = [
