@@ -1,4 +1,4 @@
-name: Deploy to Server
+name: Deploy to Azure VM
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
           script: |
             echo "Starting deployment..."
 
-            cd ${{ secrets.SERVER_PATH }}
+            cd /home/azure/milk-subscription-management-system
 
             echo "Pulling latest code..."
             git pull origin main
@@ -28,10 +28,10 @@ jobs:
             source venv/bin/activate
 
             echo "Installing backend dependencies..."
-            pip install -r requirements.txt
-
             cd milkman
+            pip install -r requirements.txt
             python manage.py migrate
+            python manage.py collectstatic --noinput
             cd ..
 
             echo "Installing and building ReactUser frontend..."
@@ -47,7 +47,8 @@ jobs:
             cd ..
 
             echo "Restarting application with PM2..."
-            pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js
+            pm2 delete all || true
+            pm2 start ecosystem.config.js
             pm2 save
 
             echo "Deployment finished successfully"
