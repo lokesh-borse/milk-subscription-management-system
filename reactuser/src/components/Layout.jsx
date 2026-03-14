@@ -30,7 +30,7 @@ const Layout = ({ children }) => {
           </div>
           <div>
             <h4 className="footer-title">Explore</h4>
-            <Link className="footer-link" to="/products">All Products</Link>
+            <Link className="footer-link" to="/products">All Product's</Link>
             <Link className="footer-link" to="/categories">Categories</Link>
             <Link className="footer-link" to="/subscribe/category">Subscription Plans</Link>
           </div>
