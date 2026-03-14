@@ -5,7 +5,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: '0.0.0.0',
-    port: 5173
+    port: 5173,
+    allowedHosts: ['heymilkman.duckdns.org', 'www.heymilkman.duckdns.org', 'localhost', '127.0.0.1']
   }
 })
 
