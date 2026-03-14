@@ -2,21 +2,32 @@ module.exports = {
   apps: [
     {
       name: "backend",
-      script: "./venv/Scripts/python.exe",
-      args: "milkman/manage.py runserver 0.0.0.0:8000",
-      cwd: "./"
+      cwd: "./milkman",
+      script: "../venv/bin/python",
+      args: "manage.py runserver 0.0.0.0:8000",
+      env: {
+        DJANGO_SETTINGS_MODULE: "milkman.settings"
+      }
     },
     {
       name: "reactuser",
-      script: "cmd",
-      args: "/c npm run dev",
-      cwd: "./reactuser"
+      cwd: "./reactuser",
+      script: "npm",
+      args: "run dev",
+      env: {
+        HOST: "0.0.0.0",
+        PORT: "5173"
+      }
     },
     {
       name: "reactadmin",
-      script: "cmd",
-      args: "/c npm run dev",
-      cwd: "./reactadmin"
+      cwd: "./reactadmin",
+      script: "npm",
+      args: "run dev",
+      env: {
+        HOST: "0.0.0.0",
+        PORT: "5174"
+      }
     }
   ]
 };
