@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    middlewareMode: true,
-    allowedHosts: ['heymilkmanadmin.duckdns.org', 'www.heymilkmanadmin.duckdns.org', '127.0.0.1', 'localhost']
+    host: '0.0.0.0',
+    port: 5174
   }
 })
