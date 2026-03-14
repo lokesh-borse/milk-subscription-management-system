@@ -64,12 +64,6 @@ const Products = () => {
     navigate(`/product/${productId}`);
   };
 
-  const handleFavoriteToggle = (productId, isFavorited) => {
-    // This can be enhanced to save favorites to localStorage or backend
-    const message = isFavorited ? 'Added to favorites' : 'Removed from favorites';
-    window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', message } }));
-  };
-
   return (
     <div className="section">
       <div className="container">
@@ -116,8 +110,6 @@ const Products = () => {
                 rating={4.5}
                 reviewCount={0}
                 badge={p.is_popular ? 'Popular' : p.is_new ? 'New' : null}
-                isFavorite={false}
-                onFavoriteToggle={handleFavoriteToggle}
                 onViewDetails={handleViewDetails}
                 onAddToCart={handleAddToCart}
               />

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Heart, Star, ShoppingCart } from 'lucide-react';
+import { Star, ShoppingCart } from 'lucide-react';
 import './ProductCard.css';
 import { formatINR } from '../utils/currency';
 
@@ -9,7 +9,6 @@ import { formatINR } from '../utils/currency';
  * Features:
  * - Image with hover zoom effect
  * - Product badge (Popular, New)
- * - Favorite/Wishlist toggle
  * - Star rating display
  * - Hover overlay with action buttons
  * - Category badge with color
@@ -25,22 +24,11 @@ const ProductCard = ({
   rating,
   reviewCount,
   badge,
-  isFavorite,
-  onFavoriteToggle,
   onViewDetails,
   onAddToCart,
   isLoading,
 }) => {
-  const [isFaved, setIsFaved] = useState(isFavorite || false);
-  const [isHovered, setIsHovered] = useState(false);
-
-  const handleFavoriteClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsFaved(!isFaved);
-    if (onFavoriteToggle) onFavoriteToggle(id, !isFaved);
-  };
-
+  const [isHovered, setIsHovered] = useState(false)
   const handleViewDetails = (e) => {
     e.preventDefault();
     if (onViewDetails) onViewDetails(id);
@@ -99,16 +87,6 @@ const ProductCard = ({
           </div>
         )}
 
-        {/* Favorite Button */}
-        <button
-          className={`favorite-btn ${isFaved ? 'favorited' : ''}`}
-          onClick={handleFavoriteClick}
-          title={isFaved ? 'Remove from favorites' : 'Add to favorites'}
-          aria-label="Toggle favorite"
-        >
-          <Heart size={20} />
-        </button>
-
         {/* Hover Overlay */}
         {isHovered && (
           <div className="product-overlay">
@@ -130,8 +108,6 @@ const ProductCard = ({
           </div>
         )}
       </div>
-
-      {/* Product Info */}
       <div className="product-info">
         {/* Category Badge */}
         <div

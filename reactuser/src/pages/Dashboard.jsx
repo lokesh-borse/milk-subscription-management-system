@@ -444,8 +444,6 @@ const Dashboard = () => {
                         rating={4.5}
                         reviewCount={0}
                         badge={p.is_popular ? 'Popular' : null}
-                        isFavorite={false}
-                        onFavoriteToggle={() => { }}
                         onViewDetails={handleViewDetails}
                         onAddToCart={handleAddToCart}
                       />
