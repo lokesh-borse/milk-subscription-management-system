@@ -13,7 +13,7 @@ module.exports = {
       name: "reactuser",
       cwd: "./reactuser",
       script: "npm",
-      args: "run dev",
+      args: "run dev -- --host 0.0.0.0 --port 5173",
       env: {
         HOST: "0.0.0.0",
         PORT: "5173"
@@ -23,7 +23,7 @@ module.exports = {
       name: "reactadmin",
       cwd: "./reactadmin",
       script: "npm",
-      args: "run dev",
+      args: "run dev -- --host 0.0.0.0 --port 5174",
       env: {
         HOST: "0.0.0.0",
         PORT: "5174"
