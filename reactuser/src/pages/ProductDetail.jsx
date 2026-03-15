@@ -56,7 +56,24 @@ const ProductDetail = () => {
               <img
                 alt={product.name}
                 loading="lazy"
-                src={product.image || product.image_url || `https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=1200&sig=${product.id}`}
+                src={
+                  product.image || product.image_url || (() => {
+                    const categoryFallbacks = {
+                      'milk': [248412, 1251175, 416978],
+                      'curd & yogurt': [4006347, 5946688, 4669024],
+                      'paneer & cheese': [10585061, 4198019, 821365],
+                      'butter & ghee': [5313343, 7262897, 6660185],
+                      'buttermilk & lassi': [6544370, 5946639, 6544370],
+                      'flavored milk & shakes': [5946633, 5946082, 5946973],
+                      'eggs': [162712, 6941036, 1759279],
+                      'bread & bakery': [1775043, 2434, 2067396],
+                    };
+                    const categoryKey = (product.category_name || 'milk').toLowerCase();
+                    const fallbackIds = categoryFallbacks[categoryKey] || [248412];
+                    const fallbackId = fallbackIds[(product.id || 0) % fallbackIds.length];
+                    return `https://images.pexels.com/photos/${fallbackId}/pexels-photo-${fallbackId}.jpeg?auto=compress&cs=tinysrgb&w=1200`;
+                  })()
+                }
                 onError={(e) => { e.target.src = `https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=1200`; }}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />

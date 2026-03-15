@@ -26,11 +26,22 @@ const SelectProduct = () => {
 
   const fallbackImage = 'https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=900';
 
-  const resolveImageUrl = (imageUrl) => {
-    if (!imageUrl) return '';
-    if (/^https?:\/\//i.test(imageUrl)) return imageUrl;
-    if (imageUrl.startsWith('//')) return `${window.location.protocol}${imageUrl}`;
-    return `${API_BASE_URL}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+  const categoryFallbackIds = {
+    'milk': [248412, 1251175, 416978],
+    'curd & yogurt': [4006347, 5946688, 4669024],
+    'paneer & cheese': [10585061, 4198019, 821365],
+    'butter & ghee': [5313343, 7262897, 6660185],
+    'buttermilk & lassi': [6544370, 5946639, 6544370],
+    'flavored milk & shakes': [5946633, 5946082, 5946973],
+    'eggs': [162712, 6941036, 1759279],
+    'bread & bakery': [1775043, 2434, 2067396],
+  };
+
+  const getProductFallbackImage = (product) => {
+    const categoryKey = (product.category_name || 'milk').toLowerCase();
+    const fallbackIds = categoryFallbackIds[categoryKey] || [248412];
+    const fallbackId = fallbackIds[(product.id || 0) % fallbackIds.length];
+    return `https://images.pexels.com/photos/${fallbackId}/pexels-photo-${fallbackId}.jpeg?auto=compress&cs=tinysrgb&w=900`;
   };
 
   useEffect(() => {
@@ -184,7 +195,7 @@ const SelectProduct = () => {
                     background: 'linear-gradient(135deg, #f8f9fa, #e9ecef)'
                   }}>
                     <img
-                      src={resolveImageUrl(p.image) || `${fallbackImage}&sig=${p.id}`}
+                      src={p.image || p.image_url || getProductFallbackImage(p)}
                       alt={p.name}
                       style={{
                         width: '100%',
@@ -194,7 +205,7 @@ const SelectProduct = () => {
                       }}
                       loading="lazy"
                       onError={(e) => {
-                        e.currentTarget.src = `${fallbackImage}&sig=${p.id}`;
+                        e.currentTarget.src = getProductFallbackImage(p);
                       }}
                     />
                   </div>
