@@ -148,3 +148,9 @@ CORS_ALLOW_HEADERS = [
     "x-csrftoken",
     "x-requested-with",
 ]
+
+# HTTPS/SSL Configuration for reverse proxy
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = False
+USE_X_FORWARDED_HOST = True
+ALLOWED_HOSTS = ['heymilkman.duckdns.org', 'localhost', '127.0.0.1', '*']
