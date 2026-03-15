@@ -17,9 +17,9 @@ const Dashboard = () => {
       setIsLoading(true);
       try {
         const [customers, products, subscriptions] = await Promise.all([
-          api.get('/customer/customer/'),
-          api.get('/product/product/'),
-          api.get('/subscription/subscription/'),
+          api.get('/api/customer/customer/'),
+          api.get('/api/products/product/'),
+          api.get('/api/subscription/subscription/'),
         ]);
         const activeSubs = subscriptions.data.filter(s => s.status === 'active');
         const revenue = subscriptions.data.reduce((acc, s) => {

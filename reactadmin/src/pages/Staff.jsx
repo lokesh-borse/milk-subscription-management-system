@@ -51,7 +51,7 @@ const Staff = () => {
     const load = async () => {
         setLoading(true);
         try {
-            const res = await api.get('/staff/staff/');
+            const res = await api.get('/api/staff/staff/');
             setItems(res.data);
             setError(null);
         } catch {
@@ -72,7 +72,7 @@ const Staff = () => {
         e.preventDefault();
         setFormError(null);
         try {
-            await api.post('/staff/staff/', newItem);
+            await api.post('/api/staff/staff/', newItem);
             setNewItem({ email: '', password: '', name: '', phone: '', address: '' });
             load();
         } catch (err) {
@@ -89,7 +89,7 @@ const Staff = () => {
 
     const saveEdit = async (item) => {
         try {
-            await api.put(`/staff/staff/${item.id}/`, { ...item, ...editRow });
+            await api.put(`/api/staff/staff/${item.id}/`, { ...item, ...editRow });
             setEditId(null);
             load();
         } catch (err) {
@@ -100,7 +100,7 @@ const Staff = () => {
     const deleteItem = async (id) => {
         if (!window.confirm('Delete this staff member?')) return;
         try {
-            await api.delete(`/staff/staff/${id}/`);
+            await api.delete(`/api/staff/staff/${id}/`);
             load();
         } catch {
             setError('Failed to delete staff member.');

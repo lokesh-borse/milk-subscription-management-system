@@ -24,7 +24,7 @@ const Products = () => {
         const params = {};
         if (category) params.category = category;
         if (search) params.search = search;
-        const res = await api.get('/product/product/', { params });
+        const res = await api.get('/api/products/product/', { params });
         setProducts(res.data || []);
         console.debug('[Products] Loaded', res.data?.length);
       } catch (e) {

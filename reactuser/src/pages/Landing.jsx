@@ -52,7 +52,7 @@ const Landing = () => {
 
   useEffect(() => {
     let mounted = true;
-    api.get('/product/product/')
+    api.get('/api/products/product/')
       .then((res) => {
         if (mounted) {
           setProducts(res.data?.slice(0, 4) || []);

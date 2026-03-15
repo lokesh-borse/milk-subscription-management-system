@@ -26,7 +26,7 @@ const SelectQuantity = () => {
   useEffect(() => {
     const draft = JSON.parse(sessionStorage.getItem('subDraft') || '{}');
     if (draft.product) {
-      api.get(`/product/product/${draft.product}/`)
+      api.get(`/api/products/product/${draft.product}/`)
         .then(res => {
           setProduct(res.data);
           setLoading(false);

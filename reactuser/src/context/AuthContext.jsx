@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setLoading(true);
     try {
-      const res = await api.post('/customer/login/', { email, password });
+      const res = await api.post('/api/customer/login/', { email, password });
       const { token: t, customer_id, name, phone, address } = res.data;
       localStorage.setItem('userToken', t);
       localStorage.setItem('userProfile', JSON.stringify({ id: customer_id, email, name, phone, address }));
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
   const signup = async (payload) => {
     setLoading(true);
     try {
-      await api.post('/customer/signup/', payload);
+      await api.post('/api/customer/signup/', payload);
 
       // Signup should not create an authenticated session.
       localStorage.removeItem('userToken');
@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = async (payload) => {
     setLoading(true);
     try {
-      const res = await api.patch('/customer/me/', payload);
+      const res = await api.patch('/api/customer/me/', payload);
       const profile = {
         id: res.data?.customer_id,
         name: res.data?.name,
@@ -91,7 +91,7 @@ export const AuthProvider = ({ children }) => {
       if (user?.address && user?.phone) return;
 
       try {
-        const res = await api.get('/customer/me/');
+        const res = await api.get('/api/customer/me/');
         const profile = {
           id: res.data?.customer_id,
           name: res.data?.name,

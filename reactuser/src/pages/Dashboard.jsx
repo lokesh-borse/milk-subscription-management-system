@@ -62,7 +62,7 @@ const Dashboard = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await api.get('/subscription/subscription/', { params: { customer: user?.id } });
+        const res = await api.get('/api/subscription/subscription/', { params: { customer: user?.id } });
         setSubs(res.data || []);
       } catch (e) {
         setError('Failed to load subscriptions');
@@ -77,7 +77,7 @@ const Dashboard = () => {
     const loadRecommendations = async () => {
       setProductsLoading(true);
       try {
-        const res = await api.get('/product/product/', { params: { limit: 4 } });
+        const res = await api.get('/api/products/product/', { params: { limit: 4 } });
         setRecommendedProducts(res.data || []);
       } catch (e) {
         console.error('Error loading recommendations:', e);
@@ -90,7 +90,7 @@ const Dashboard = () => {
 
   const togglePause = async (s) => {
     try {
-      const updated = await api.patch(`/subscription/subscription/${s.id}/`, { status: s.status === 'paused' ? 'active' : 'paused' });
+      const updated = await api.patch(`/api/subscription/subscription/${s.id}/`, { status: s.status === 'paused' ? 'active' : 'paused' });
       setSubs((prev) => prev.map((p) => (p.id === s.id ? updated.data : p)));
       window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', message: `Subscription ${updated.data.status === 'paused' ? 'paused' : 'resumed'}` } }));
     } catch {

@@ -44,7 +44,7 @@ const Product = () => {
     const load = async () => {
         setLoading(true);
         try {
-            const [pRes, cRes] = await Promise.all([api.get('/product/product/'), api.get('/category/category/')]);
+            const [pRes, cRes] = await Promise.all([api.get('/api/products/product/'), api.get('/api/categories/')]);
             setItems(pRes.data);
             setCategories(cRes.data);
             setError(null);
@@ -59,7 +59,7 @@ const Product = () => {
     const uploadImageFile = async (file) => {
         const fd = new FormData();
         fd.append('image', file);
-        const res = await api.post('/product/upload-image/', fd, {
+        const res = await api.post('/api/products/upload-image/', fd, {
             headers: { 'Content-Type': 'multipart/form-data' },
         });
         return res.data?.image || '';
@@ -100,20 +100,20 @@ const Product = () => {
     const addItem = async (e) => {
         e.preventDefault();
         setFormError(null);
-        try { await api.post('/product/product/', newItem); setNewItem({ name: '', price: '', category: '', description: '', image: '' }); load(); }
+        try { await api.post('/api/products/product/', newItem); setNewItem({ name: '', price: '', category: '', description: '', image: '' }); load(); }
         catch (err) { setFormError(err.response?.data ? JSON.stringify(err.response.data) : 'Failed to add product'); }
     };
 
     const startEdit = (item) => { setEditId(item.id); setEditRow({ name: item.name, price: item.price, description: item.description, image: item.image, category: item.category }); };
     const cancelEdit = () => { setEditId(null); setEditRow({}); };
     const saveEdit = async (item) => {
-        try { await api.put(`/product/product/${item.id}/`, { ...item, ...editRow }); setEditId(null); load(); }
+        try { await api.put(`/api/products/product/${item.id}/`, { ...item, ...editRow }); setEditId(null); load(); }
         catch { setError('Failed to update product.'); }
     };
 
     const deleteItem = async (id) => {
         if (!window.confirm('Delete this product?')) return;
-        try { await api.delete(`/product/product/${id}/`); load(); }
+        try { await api.delete(`/api/products/product/${id}/`); load(); }
         catch { setError('Failed to delete product.'); }
     };
 

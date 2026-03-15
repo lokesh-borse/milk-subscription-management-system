@@ -43,7 +43,7 @@ const SubscriptionDetails = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await api.get(`/subscription/subscription/${id}/`);
+        const res = await api.get(`/api/subscription/subscription/${id}/`);
         setSubscription(res.data);
       } catch {
         setError('Failed to load subscription details.');

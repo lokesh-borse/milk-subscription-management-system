@@ -83,7 +83,7 @@ const SelectDuration = () => {
         }
 
         if (d.product) {
-          const res = await api.get(`/product/product/${d.product}/`);
+          const res = await api.get(`/api/products/product/${d.product}/`);
           const unitPrice = Number(res.data?.price) || 0;
           const qty = Number(d.quantity) || 1;
           setPerDeliveryTotal(unitPrice * qty);

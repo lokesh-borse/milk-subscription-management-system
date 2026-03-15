@@ -44,9 +44,9 @@ const Subscription = () => {
         setLoading(true);
         try {
             const [sRes, cRes, pRes] = await Promise.all([
-                api.get('/subscription/subscription/'),
-                api.get('/customer/customer/'),
-                api.get('/product/product/'),
+                api.get('/api/subscription/subscription/'),
+                api.get('/api/customer/customer/'),
+                api.get('/api/products/product/'),
             ]);
             setItems(sRes.data);
             setCustomers(cRes.data);
@@ -64,7 +64,7 @@ const Subscription = () => {
         e.preventDefault();
         setFormError(null);
         try {
-            await api.post('/subscription/subscription/', newItem);
+            await api.post('/api/subscription/subscription/', newItem);
             setNewItem({ customer: '', product: '', quantity: '1', duration: '1', delivery_slot: 'morning', address: '', status: 'active' });
             load();
         } catch (err) { setFormError(err.response?.data ? JSON.stringify(err.response.data) : 'Failed to add subscription'); }
@@ -72,13 +72,13 @@ const Subscription = () => {
 
     const toggleStatus = async (row) => {
         const next = row.status === 'paused' ? 'active' : 'paused';
-        try { await api.patch(`/subscription/subscription/${row.id}/`, { status: next }); load(); }
+        try { await api.patch(`/api/subscription/subscription/${row.id}/`, { status: next }); load(); }
         catch { setError('Failed to update subscription status.'); }
     };
 
     const deleteItem = async (id) => {
         if (!window.confirm('Delete this subscription?')) return;
-        try { await api.delete(`/subscription/subscription/${id}/`); load(); }
+        try { await api.delete(`/api/subscription/subscription/${id}/`); load(); }
         catch { setError('Failed to delete subscription.'); }
     };
 

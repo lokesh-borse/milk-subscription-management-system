@@ -28,7 +28,7 @@ const SelectCategory = () => {
       setLoading(true);
       setError(null);   
       try {
-        const res = await api.get('/category/category/');
+        const res = await api.get('/api/categories/');
         setCategories(res.data || []);
       } catch (e) {
         setError('Failed to load categories');

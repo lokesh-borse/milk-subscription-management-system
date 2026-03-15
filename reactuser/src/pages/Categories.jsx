@@ -13,7 +13,7 @@ const Categories = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await api.get('/category/category/');
+        const res = await api.get('/api/categories/');
         if (!mounted) return;
         setCategories(res.data || []);
       } catch (e) {

@@ -30,7 +30,7 @@ const Confirm = () => {
     const d = JSON.parse(sessionStorage.getItem('subDraft') || '{}');
     setDraft(d);
     if (d.product) {
-      api.get(`/product/product/${d.product}/`).then(res => setProduct(res.data)).catch(() => {});
+      api.get(`/api/products/product/${d.product}/`).then(res => setProduct(res.data)).catch(() => {});
     }
   }, []);
 
@@ -54,7 +54,7 @@ const Confirm = () => {
         status: 'active',
       }));
 
-      const responses = await Promise.all(payloads.map((p) => api.post('/subscription/subscription/', p)));
+      const responses = await Promise.all(payloads.map((p) => api.post('/api/subscription/subscription/', p)));
       const hasFailure = responses.some((res) => res.status !== 201 && res.status !== 200);
       if (hasFailure) throw new Error('Subscription failed');
 

@@ -20,7 +20,7 @@ const Login = () => {
         setError(null);
         setLoading(true);
         try {
-            const response = await api.post('/staff/login/', { email, password });
+            const response = await api.post('/api/staff/login/', { email, password });
             const { token, staff_id } = response.data;
             localStorage.setItem('staffToken', token);
             localStorage.setItem('staffUser', JSON.stringify({ email, id: staff_id }));

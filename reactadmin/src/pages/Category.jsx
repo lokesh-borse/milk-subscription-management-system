@@ -41,7 +41,7 @@ const Category = () => {
     const load = async () => {
         setLoading(true);
         try {
-            const res = await api.get('/category/category/');
+            const res = await api.get('/api/categories/');
             setItems(res.data);
             setError(null);
         } catch {
@@ -58,7 +58,7 @@ const Category = () => {
     const uploadImageFile = async (file) => {
         const fd = new FormData();
         fd.append('image', file);
-        const res = await api.post('/category/upload-image/', fd, {
+        const res = await api.post('/api/categories/upload-image/', fd, {
             headers: { 'Content-Type': 'multipart/form-data' },
         });
         return res.data?.image || '';
@@ -100,7 +100,7 @@ const Category = () => {
         e.preventDefault();
         setFormError(null);
         try {
-            await api.post('/category/category/', newItem);
+            await api.post('/api/categories/', newItem);
             setNewItem({ name: '', description: '', image: '' });
             load();
         } catch (err) {
@@ -115,7 +115,7 @@ const Category = () => {
     const cancelEdit = () => { setEditId(null); setEditRow({}); };
     const saveEdit = async (item) => {
         try {
-            await api.put(`/category/category/${item.id}/`, { ...item, ...editRow });
+            await api.put(`/api/categories/${item.id}/`, { ...item, ...editRow });
             setEditId(null);
             load();
         } catch {
@@ -126,7 +126,7 @@ const Category = () => {
     const deleteItem = async (id) => {
         if (!window.confirm('Delete this category?')) return;
         try {
-            await api.delete(`/category/category/${id}/`);
+            await api.delete(`/api/categories/${id}/`);
             load();
         } catch {
             setError('Failed to delete category.');

@@ -18,7 +18,7 @@ from django.urls import path
 from .views import CategoryViewSet, CategoryImageUploadView
 
 urlpatterns = [
-    path('category/', CategoryViewSet.as_view(), name='category-list'),
-    path('category/<int:pk>/', CategoryViewSet.as_view(), name='category-detail'),
+    path('', CategoryViewSet.as_view(), name='category-list'),
+    path('<int:pk>/', CategoryViewSet.as_view(), name='category-detail'),
     path('upload-image/', CategoryImageUploadView.as_view(), name='category-image-upload'),
 ]

@@ -39,7 +39,7 @@ const SelectProduct = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await api.get('/product/product/', { params: draft.category ? { category: draft.category } : {} });
+        const res = await api.get('/api/products/product/', { params: draft.category ? { category: draft.category } : {} });
         setProducts(res.data || []);
       } catch (e) {
         setError('Failed to load products');

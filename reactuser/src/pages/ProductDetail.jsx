@@ -14,7 +14,7 @@ const ProductDetail = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await api.get(`/product/product/${id}/`);
+        const res = await api.get(`/api/products/product/${id}/`);
         setProduct(res.data);
       } catch (e) {
         console.error(e);

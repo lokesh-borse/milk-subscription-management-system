@@ -36,7 +36,7 @@ const Customer = () => {
     const load = async () => {
         setLoading(true);
         try {
-            const res = await api.get('/customer/customer/');
+            const res = await api.get('/api/customer/customer/');
             setItems(res.data);
             setError(null);
         } catch { setError('Failed to load customers.'); }
@@ -51,7 +51,7 @@ const Customer = () => {
         e.preventDefault();
         setFormError(null);
         try {
-            await api.post('/customer/customer/', newItem);
+            await api.post('/api/customer/customer/', newItem);
             setNewItem({ name: '', email: '', phone: '', address: '', password: '' });
             load();
         } catch (err) { setFormError(err.response?.data ? JSON.stringify(err.response.data) : 'Failed to add customer'); }
@@ -61,14 +61,14 @@ const Customer = () => {
     const cancelEdit = () => { setEditId(null); setEditRow({}); };
     const saveEdit = async (item) => {
         try {
-            await api.put(`/customer/customer/${item.id}/`, { ...item, ...editRow });
+            await api.put(`/api/customer/customer/${item.id}/`, { ...item, ...editRow });
             setEditId(null); load();
         } catch { setError('Failed to update customer.'); }
     };
 
     const deleteItem = async (id) => {
         if (!window.confirm('Delete this customer?')) return;
-        try { await api.delete(`/customer/customer/${id}/`); load(); }
+        try { await api.delete(`/api/customer/customer/${id}/`); load(); }
         catch { setError('Failed to delete customer.'); }
     };
 
