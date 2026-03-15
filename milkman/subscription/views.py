@@ -53,7 +53,7 @@ class SubscriptionViewSet(APIView):
             if isinstance(user, Customer) and subscription.customer_id != user.pk:
                 return Response({'detail': 'Forbidden'}, status=status.HTTP_403_FORBIDDEN)
 
-            serializer = SubscriptionSerializer(subscription)
+            serializer = SubscriptionSerializer(subscription, context={'request': request})
             return Response(serializer.data)
 
         subscriptions = Subscription.objects.select_related("product", "product__category").all()
@@ -67,7 +67,7 @@ class SubscriptionViewSet(APIView):
         frequency_q = request.query_params.get('frequency')
         if frequency_q:
             subscriptions = subscriptions.filter(frequency=frequency_q)
-        serializer = SubscriptionSerializer(subscriptions, many=True)
+        serializer = SubscriptionSerializer(subscriptions, many=True, context={'request': request})
         return Response(serializer.data)
 
     def post(self, request, format=None):
