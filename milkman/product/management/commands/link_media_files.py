@@ -16,7 +16,8 @@ class Command(BaseCommand):
         product_folder = media_root / 'products'
         if product_folder.exists():
             product_images = sorted(list(product_folder.glob('*.jpg')) + list(product_folder.glob('*.jpeg')) + list(product_folder.glob('*.png')))
-            products = Product.objects.filter(image__isnull=True) | Product.objects.filter(image='')
+            # Get all products, not just ones with empty images
+            products = Product.objects.all()
             
             for i, product in enumerate(products):
                 if i < len(product_images):
@@ -29,7 +30,8 @@ class Command(BaseCommand):
         category_folder = media_root / 'categories'
         if category_folder.exists():
             category_images = sorted(list(category_folder.glob('*.jpg')) + list(category_folder.glob('*.jpeg')) + list(category_folder.glob('*.png')))
-            categories = Category.objects.filter(image__isnull=True) | Category.objects.filter(image='')
+            # Get all categories, not just ones with empty images
+            categories = Category.objects.all()
             
             for i, category in enumerate(categories):
                 if i < len(category_images):
