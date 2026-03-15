@@ -32,7 +32,7 @@ class ProductViewSet(APIView):
                 product = Product.objects.get(pk=pk)
             except Product.DoesNotExist:
                 return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
-            serializer = ProductSerializer(product)
+            serializer = ProductSerializer(product, context={'request': request})
             return Response(serializer.data)
 
         products = Product.objects.all()
@@ -42,7 +42,7 @@ class ProductViewSet(APIView):
             products = products.filter(category_id=category_id)
         if search:
             products = products.filter(name__icontains=search)
-        serializer = ProductSerializer(products, many=True)
+        serializer = ProductSerializer(products, many=True, context={'request': request})
         return Response(serializer.data)
 
     def post(self, request, format=None):
