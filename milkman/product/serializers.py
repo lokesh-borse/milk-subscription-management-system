@@ -20,9 +20,14 @@ class ProductSerializer(serializers.ModelSerializer):
         ]
     
     def get_image(self, obj):
+        if not obj.image:
+            return None
+        image_value = str(obj.image)
+        # If it's a full URL (starts with http), return as-is
+        if image_value.startswith(('http://', 'https://')):
+            return image_value
+        # Otherwise it's a relative path, build absolute URL
         request = self.context.get('request')
-        if obj.image:
-            if request:
-                return request.build_absolute_uri(obj.image.url)
-            return obj.image.url
-        return None
+        if request:
+            return request.build_absolute_uri(f'/media/{image_value}')
+        return f'/media/{image_value}'
